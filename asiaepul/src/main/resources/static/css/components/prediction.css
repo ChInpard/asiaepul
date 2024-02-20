@@ -1,0 +1,169 @@
+.prediction-section {
+    display: grid;
+    grid-template-columns: 0.4fr 621px 621px;
+    grid-template-rows: 250px 530px;
+    gap: 25px;
+
+    margin: 25px auto 0 auto;
+}
+
+
+.prediction-section
+    .prediction-list {
+        width: 572px;
+        height: 777px;
+
+        grid-column: 1;
+    }
+
+.prediction-section
+    .AI-apply {
+        min-width: 376px;
+        height: 222px;
+
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+.prediction-section
+    .prediction-calculation {
+        min-width: 376px;
+        height: 222px;
+
+        grid-column: 3;
+        grid-row: 1;
+    }
+
+.prediction-section
+    .product-prediction {
+        min-width: 852px;
+        max-width: 1235px;
+        height: 478px;
+
+        grid-column: 2 / span 3;
+        grid-row: 2;
+    }
+
+
+/*============ 검색창 ============*/
+.search-bar{
+    margin-top: 30px;
+}
+
+.search-bar
+    .search-text {
+        padding-left: 40px;
+        width: 380px;
+        height: 44px;
+        border: 1px solid var(--color-base-3);
+        border-radius: var(--radius-1);
+        font-size: var(--font-size-1);
+    }
+    
+.search-bar
+    .search-text::placeholder {
+        color: var(--color-base-3);
+        font-weight: bold;
+    }
+
+.search-bar
+    .search-input {
+        cursor: pointer;
+    }
+
+.search-bar
+    button {
+        top: 10px;
+        left: 10px;
+    }
+
+/*============ 제품 리스트 ============*/
+.product-list {
+    width: 540px;
+    height: 30px;
+
+    margin-top: 40px;
+    border-collapse: collapse;
+}
+
+.product-list 
+    .title th{
+        border-bottom: 2px solid var(--color-base-2);
+    }
+
+.product-list
+    .product-name {
+        width: 50%;
+        height: 32px;
+        padding: 12px 25px;
+    }
+
+.product-list
+    .prediction-amount {
+        width: 25%;
+        height: 56px;
+    }
+
+.product-list
+    .toggle {
+        width: 25%;
+        height: 56px;
+    }
+
+.product-list
+    .title
+        .icon-filter {
+            position: relative;
+            top: 5px;
+            left: 5px;
+        }
+
+.product-list
+    .title
+        .toggle
+            button{
+            width: 56px;
+            height: 30px;
+            border: 1px solid var(--color-base-1);
+        }
+
+.product-list
+    .contents
+        tr:hover {
+            background-color: rgba(126, 126, 126, 0.08);
+        }
+        
+/* 상태 변경 클래스 */
+.active-color {
+    background-color: var(--color-accent-1);
+}
+.deactive-color {
+    background-color: var(--color-base-0);
+}
+
+
+/* 인공지능 적용 현황 */
+.prediction-section
+    .AI-apply
+        dl {
+            display: grid;
+            align-items: center;
+            grid-template-columns: 0.5fr 1fr;
+            grid-template-rows: 25px 25px 25px;
+            gap: 30px;
+
+            margin: 36px;
+        }
+
+
+/* 예측 산출 가중치 */
+.prediction-section
+    .prediction-calculation {
+        
+    }
+
+/* 수요 예측 */
+.prediction-section
+    .product-prediction {
+
+    }
