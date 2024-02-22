@@ -65,8 +65,8 @@ grid
 
 /*--- flex-align-self ------------------------------------------------------------------*/
 
-.align-self\:flex-start { -ms-flex-item-align: start!important; align-self: flex-start!important; }
-.align-self\:flex-end { -ms-flex-item-align: end!important; align-self: flex-end!important; }
+.align-self\:start { -ms-flex-item-align: start!important; align-self: flex-start!important; }
+.align-self\:end { -ms-flex-item-align: end!important; align-self: flex-end!important; }
 .align-self\:center { -ms-flex-item-align: center!important; align-self: center!important; }
 .align-self\: baseline { -ms-flex-item-align: baseline!important; align-self: baseline!important;}
 .align-self\:stretch { -ms-flex-item-align: stretch!important; align-self: stretch!important; }
@@ -74,8 +74,8 @@ grid
 
 /*--- flex-justify-content ------------------------------------------------------------------*/
 
-.justify-content\:flex-start   { justify-content: flex-start !important; }
-.justify-content\:flex-end     { justify-content: flex-end !important; }
+.justify-content\:start   { justify-content: flex-start !important; }
+.justify-content\:end     { justify-content: flex-end !important; }
 .justify-content\:center  { justify-content: center !important; }
 .justify-content\:space-between { justify-content: space-between !important; }
 .justify-content\:space-around  { justify-content: space-around !important; }

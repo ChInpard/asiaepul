@@ -152,15 +152,9 @@
             grid-template-rows: 25px 25px 25px;
             gap: 30px;
 
-            margin: 36px;
+            margin: 32px 70px;
         }
 
-
-/* 예측 산출 가중치 */
-.prediction-section
-    .prediction-calculation {
-        
-    }
 
 /* 수요 예측 */
 .prediction-section

@@ -40,8 +40,6 @@ public class DashboardController {
     
     @GetMapping("prediction")
     public String prediction(Model model) {
-    	
-    	
 
         return "prediction";
     }

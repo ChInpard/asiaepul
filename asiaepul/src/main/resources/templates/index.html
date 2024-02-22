@@ -13,6 +13,11 @@
     <link href="/css/icon.css" rel="stylesheet" type="text/css">
     <link href="/css/components/header.css" rel="stylesheet" type="text/css">
     <link href="/css/index.css" rel="stylesheet" type="text/css">
+    <script src="https://fastly.jsdelivr.net/npm/echarts@5/dist/echarts.min.js" defer></script>
+    <script src="https://fastly.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js" defer></script>
+    <script src="/js/bestmart-chart.js" defer></script>
+    <script src="/js/sales-trend-chart.js" defer></script>
+    <script src="/js/prediction-chart.js" defer></script>
     <title>Today Reports</title>
 </head>
 
@@ -23,8 +28,8 @@
                 <a href="/">
                     <img class="pulmuone" src="/image/pulmuone.png" alt="x">
                 </a>
-                </div>
-            <ul class="d:flex gap:8 font-weight:600 ml:250">
+            </div>
+            <ul class="d:flex gap:8 font-weight:600">
                 <li><a class="font-size:1" href="/prediction">Forecasting</a></li>
                 <li><a class="font-size:1" href="/analysis">Analysis</a></li>
             </ul>
@@ -80,8 +85,9 @@
             <h1 class="d:none">차트 및 테이블 섹션</h1>
             <section class="mart-performance p:3 bg-color:base-0 border-radius:2 box-shadow:0">
                 <h1 class="font-size:4 color:base-6 font-weight:600">지점별 실적</h1>
-                
+                <div id="bestmart-chart" class="position:relative w:1 h:1"></div>
             </section>
+
             <section class="sales-product-rank p:3 bg-color:base-0 border-radius:2 box-shadow:0">
                 <h1 class="font-size:4 color:base-6 font-weight:600">식품별 판매량</h1>
                 <table>
@@ -94,7 +100,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="text-align:center">카테고리</td>
+                            <td class="text-align:center">Nantucket Pine Orangebanana</td>
                             <td class="text-align:center">Nantucket Pine Orangebanana</td>
                             <td class="text-align:center">+5%</td>
                         </tr>
@@ -114,7 +120,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="text-align:center">카테고리</td>
+                            <td class="text-align:center">Broom And Broom Rack White</td>
                             <td class="text-align:center">Nantucket Pine Orangebanana</td>
                             <td class="text-align:center">+5%</td>
                         </tr>
@@ -125,12 +131,12 @@
 
             <section class="sales-volume-trend p:3 bg-color:base-0 border-radius:2 box-shadow:0">
                 <h1 class="font-size:4 color:base-6 font-weight:600">판매량 증감 추이</h1>
-
+                <div id="sales-trend-chart" class="position:relative w:1 h:1"></div>
             </section>
 
             <section class="demand-forecasting p:3 bg-color:base-0 border-radius:2 box-shadow:0">
                 <h1 class="font-size:4 color:base-6 font-weight:600">수요 예측</h1>
-
+                <div id="prediction-chart" class="position:relative w:1 h:1"></div>
             </section>
         </section>
     </main>
