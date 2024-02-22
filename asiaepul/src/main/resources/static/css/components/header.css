@@ -1,0 +1,11 @@
+.header
+    .navigation
+        ul {
+            margin-left: 250px;
+        }
+
+.header
+    .navigation
+        ul li:hover {
+            color: var(--color-main-1);
+        }

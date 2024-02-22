@@ -1,0 +1,53 @@
+/* progress bar */
+.progress-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%; /* 컨테이너의 너비를 명시적으로 설정 */
+    margin: 25px 0 25px 0;
+}
+
+.progress-title {
+	font-family: Noto Sans;
+	font-size: 15px;
+	font-weight: 500;
+	line-height: 20px;
+	letter-spacing: 0em;
+	text-align: left;
+	color: #656565;
+}
+
+.progress-value {
+	font-family: Noto Sans;
+	font-size: 15px;
+	font-weight: 900;
+	line-height: 20px;
+	letter-spacing: 0em;
+	text-align: left;
+	color: #000000;
+}
+
+.progress-title, .progress-value {
+    flex-shrink: 0; /* 이 요소들이 축소되지 않도록 설정 */
+    white-space: nowrap; /* 제목과 값이 줄바꿈되지 않도록 설정 */
+}
+
+.progress-bar {
+    flex-grow: 1; /* 프로그레스바가 가능한 많은 공간을 차지하도록 설정 */
+    display: flex; /* progress-bar 내부의 정렬을 위해 필요 */
+}
+
+.progress-track {
+    width: 100%;
+    background-color: #D9D9D9;
+    height: 10px;
+    border-radius: 4px;
+    position: relative; /* progress-fill을 위한 포지셔닝 기준 */
+}
+
+.progress-fill {
+    background-color: #656565;
+    height: 100%;
+    border-radius: 3px;
+    position: absolute; /* progress-track 내부에서 절대 위치 */
+}
