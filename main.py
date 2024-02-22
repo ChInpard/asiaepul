@@ -1,7 +1,12 @@
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+
+from typing import List, Dict
+from pydantic import BaseModel
+
+import random
 
 import asyncio
 # from prisma import Prisma
@@ -126,3 +131,99 @@ def peaktime():
     today_data = data_processor.extract_today_data()
     result = data_processor.get_peak_time(today_data)
     return {"peakTime": result}
+
+
+class MartData(BaseModel):
+    categories: List[str]
+    series: List[dict]
+
+@app.get("/mart-rank", response_model=MartData)
+async def get_bardata():
+    marts = {
+        '1': 120,
+        '2': 200,
+        '3': 150,
+        '4': 80,
+        '5': 70,
+        '6': 110,
+        '7': 130,
+        '8': 210,
+        '9': 220
+    }
+
+    # marts 객체의 값을 배열로 변환하여 오름차순으로 정렬
+    sorted_data = sorted(marts.items(), key=lambda x: x[1], reverse=False)
+
+    # 정렬된 데이터를 카테고리와 시리즈로 분리
+    categories = [entry[0] for entry in sorted_data]
+    series = [{"value": entry[1]} for entry in sorted_data]
+
+    return MartData(categories=categories, series=series)
+
+
+class SalesData(BaseModel):
+    categories: List[str]
+    series: List[int]
+
+@app.get("/sales-trend", response_model=SalesData)
+async def get_sales_trend_chart_data():
+    hours = []
+    for hour in range(13, 24):
+        for minute in [30, 0]:
+            hours.append(f"{hour:02d}:{minute:02d}")
+
+    values = [125, 153, 142, 123, 116, 112, 140, 150, 146, 170, 180, 190, 207, 180, 166, 122, 111, 90, 76, 54, 40]
+    
+    return SalesData(categories=hours, series=values)
+
+class PredictData(BaseModel):
+    categories: List[str]
+    series: List[Dict[str, List[int]]]
+
+@app.get("/prediction", response_model=PredictData)
+async def get_sales_trend_chart_data():
+    dates = []
+    
+    start_date = datetime(2023, 1, 1)
+    end_date = datetime(2023, 12, 31)
+
+    extended_end_date = end_date + timedelta(days=40)
+
+    date = start_date
+    while date <= extended_end_date:
+        year = str(date.year)[-2:]
+        month = str(date.month).zfill(2)
+        day = str(date.day).zfill(2)
+
+        formatted_date = f"{year}.{month}.{day}"
+        dates.append(formatted_date)
+
+        date += timedelta(days=1)
+
+    real_data = generate_real_data()
+    predicted_data = generate_predicted_data()
+
+    return PredictData(categories=dates, series=[
+        {'realData': real_data},
+        {'predictedData': predicted_data}
+    ])
+
+
+# 1년치의 더미 데이터를 생성하는 함수입니다.
+def generate_real_data():
+    data = []
+    for i in range(365):
+        # 수치를 엇비슷하게 만들기 위해 무작위 값을 사용합니다.
+        random_value = random.randint(80, 250)
+        data.append(random_value)
+
+    return data
+
+def generate_predicted_data():
+    data = []
+    for i in range(365 + 30):
+        # 수치를 엇비슷하게 만들기 위해 무작위 값을 사용합니다.
+        random_value = random.randint(80, 250)
+        data.append(random_value)
+
+    return data
