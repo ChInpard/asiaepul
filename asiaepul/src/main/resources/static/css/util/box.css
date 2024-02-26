@@ -34,10 +34,13 @@ margin
 /*--- width ------------------------------------------------------------------*/
 
 .w\:0    {width: 0% !important;}
-.w\:1\/4   {width: 25% !important;}
-.w\:1\/2   {width: 50% !important;}
-.w\:3\/4   {width: 75% !important;}
-.w\:4\/4,
+.w\:8\%	   {width: 8% !important;}
+.w\:10\%   {width: 15% !important;}
+.w\:25\%   {width: 25% !important;}
+.w\:35\%   {width: 35% !important;}
+.w\:50\%   {width: 50% !important;}
+.w\:75\%   {width: 75% !important;}
+.w\:100\%,
 .w\:1  {width: 100% !important;}
 .w\:1\/4v   {width: 25vw !important;}
 .w\:1\/2v   {width: 50vw !important;}
@@ -55,10 +58,10 @@ margin
 /*--- height ------------------------------------------------------------------*/
 
 .h\:0 {height: 0% !important;}
-.h\:1\/4 {height: 25% !important;}
-.h\:1\/2 {height: 50% !important;}
-.h\:3\/4 {height: 75% !important;}
-.h\:4\/4,
+.h\:25\% {height: 25% !important;}
+.h\:50\% {height: 50% !important;}
+.h\:75\% {height: 75% !important;}
+.h\:100\%,
 .h\:1{height: 100% !important;}
 .h\:1\/4v {height: 25vh !important;}
 .h\:1\/2v {height: 50vh !important;}
@@ -67,15 +70,17 @@ margin
 .h\:auto {height: auto !important;}
 .h\:inherit {height: inherit !important;}
 .h\:initial {height: initial !important;}
-.h\:113 {height: 113px !important;}
-.h\:137 {height: 137px !important;}
-.h\:628 {height: 628px !important;}
+
+.h\:25px {height: 25px !important;}
+.h\:580px {height: 580px !important;}
+
 
 /*==== over-flow ==============================================================*/
 
 .overflow-y\:auto { overflow-y: auto !important; }
 .overflow\:auto   { overflow: auto !important; }
-.overflow\:hidden {  overflow: hidden !important; }
+.overflow\:hidden { overflow: hidden !important; }
+.overflow\:visible{ overflow: visible !important; }
 
 /*==== border ==============================================================*/
 

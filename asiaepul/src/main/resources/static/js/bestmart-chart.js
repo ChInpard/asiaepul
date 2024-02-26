@@ -2,7 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const bestMartChartSection = document.getElementById('bestmart-chart');
     const bestMartChart = echarts.init(bestMartChartSection, null, {
         renderer: 'canvas',
-        useDirtyRect: false
+        useDirtyRect: false,
+        height: 580
     });
     
     async function drawChart() {
@@ -15,7 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	    const option = {
 			toolbox: {
 	            feature: {
-	                dataView: { show: true, readOnly: false },
 	                saveAsImage: { show: true }
 	            }
 	        },
@@ -23,16 +23,20 @@ document.addEventListener('DOMContentLoaded', function() {
 	            type: 'value',
 	            name: '판매량',
 	            nameLocation: 'middle',
-	            nameGap: 35
+	            nameGap: 40
 	        },
 	        yAxis: {
 	            type: 'category',
 	            data: chartData.categories,
 	            name: '지점',
-	            nameLocation: 'end'
+	            nameLocation: 'end',
+	            axisLabel: {
+                    margin: 10
+                }
 	        },
 	        series: [
 	            {
+					name: '판매량',
 	                data: chartData.series,
 	                type: 'bar',
 	                label: {

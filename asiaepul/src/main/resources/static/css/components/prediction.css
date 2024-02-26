@@ -83,31 +83,33 @@
     height: 30px;
 
     margin-top: 40px;
-    border-collapse: collapse;
 }
 
 .product-list 
-    .title th{
+    .title {
         border-bottom: 2px solid var(--color-base-2);
     }
 
 .product-list
     .product-name {
         width: 50%;
-        height: 32px;
         padding: 12px 25px;
     }
+    
+.product-list
+	.contents
+		.product {
+			height: 56px;
+		}
 
 .product-list
-    .prediction-amount {
+    .demand {
         width: 25%;
-        height: 56px;
     }
 
 .product-list
     .toggle {
         width: 25%;
-        height: 56px;
     }
 
 .product-list
@@ -129,15 +131,20 @@
 
 .product-list
     .contents
-        tr:hover {
+        .product:hover {
             background-color: rgba(126, 126, 126, 0.08);
+        }
+.product-list
+    .contents
+        .product.clicked:hover {
+            background-color: var(--color-accent-1);
         }
         
 /* 상태 변경 클래스 */
-.active-color {
+.clicked {
     background-color: var(--color-accent-1);
 }
-.deactive-color {
+.non-clicked {
     background-color: var(--color-base-0);
 }
 
@@ -155,9 +162,67 @@
             margin: 32px 70px;
         }
 
+        
+/* 팝업창 */
+.popup-container {
+    position: fixed;
+  	top: 395px;
+  	left: 205px;
+    transform: translate(-50%, -50%);
+    /*background-color: rgba(0, 0, 0, 0.5);  배경색을 반투명하게 설정 */
+    z-index: 9999; /* 다른 요소들보다 위에 나타나도록 설정 */
+    display: none; /* 초기에는 숨김 상태로 설정 */
+}
 
-/* 수요 예측 */
-.prediction-section
-    .product-prediction {
+.popup {
+    background-color: white;
+    padding: 20px;
+    border-radius: var(--radius-2);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* 그림자 효과 추가 */
+}
 
-    }
+.popup-contents {
+	height: 250px;
+	margin: 16px 0;
+	overflow-y: auto;
+}
+
+.popup-contents
+	.content {
+		padding: 4px;
+		border: 0.5px solid var(--color-base-2);
+		
+		text-align: center;
+	}
+.popup-container
+	.icon-search {
+		top: 7px;
+		left: 5px;
+	}
+	
+.popup-container
+	.popup-close {
+		display: inline-block;
+		padding: 8px;
+		background-color: var(--color-main-2);
+		border-radius: var(--radius-2);
+		border: none;
+	    cursor: pointer;
+	    
+	    position: relative;
+		left: 235px;
+	    
+	   	font-size: var(--font-size-0);
+	   	color: var(--color-base-0);
+	}
+
+.popup-container
+	.search-text {
+		padding-top: 5px;
+		padding-left: 30px;
+        width: 250px;
+        height: 30px;
+        border: 1px solid var(--color-base-3);
+        border-radius: var(--radius-1);
+        font-size: var(--font-size-0);
+	}

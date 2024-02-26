@@ -1,8 +1,9 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", function() {
     const salesTrendChartSection = document.getElementById('sales-trend-chart');
     const salesTrendChart = echarts.init(salesTrendChartSection, null, {
         renderer: 'canvas',
-        useDirtyRect: false
+        useDirtyRect: false,
+        height: 260
     });
 
     async function drawChart() {
@@ -19,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	        },
 	        toolbox: {
 	            feature: {
-	                dataView: { show: true, readOnly: false },
+	                dataView: { show: true, readOnly: true },
 	                magicType: { show: true, type: ['line', 'bar'] },
 	                saveAsImage: { show: true }
 	            }
@@ -30,16 +31,20 @@ document.addEventListener('DOMContentLoaded', function() {
 	            data: chartData.categories,
 	            name: "시간대",
 	            nameLocation: 'middle',
-	            nameGap: 35
+	            nameGap: 40
 	        },
 	        yAxis: {
 	            type: 'value',
 	            name: "판매량",
 	            nameLocation: 'end',
-	            nameGap: 25
+	            nameGap: 25,
+	            axisLabel: {
+                    margin: 10
+                }
 	        },
 	        series: [
 	            {
+					name: '전체 판매량',
 	                data: chartData.series,
 	                type: 'line',
 	                // symbol: 'fill',

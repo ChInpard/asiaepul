@@ -2,7 +2,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const dom = document.getElementById('prediction-chart');
     const myChart = echarts.init(dom, null, {
         renderer: 'canvas',
-        useDirtyRect: false
+        useDirtyRect: false,
+        height: 260
     });
  
     
@@ -39,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	        },
 	        toolbox: {
 	            feature: {
-	                dataView: { show: true, readOnly: false },
+	                dataView: { show: true, readOnly: true },
 	                magicType: { show: true, type: ['line', 'bar'] },
 	                restore: { show: true },
 	                saveAsImage: { show: true }
@@ -61,6 +62,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 	            {
 	                type: 'value',
 	                name: '',
+	                axisLabel: {
+                    	margin: 10
+                	}
 	            }
 	        ],
 	        dataZoom: [
