@@ -38,8 +38,7 @@ class DataProcessor:
     async def read_and_merge_data(self):
         if self.total_data is None:
             # 데이터 읽기 및 병합
-            loop = asyncio.get_event_loop()
-            data_frames = await asyncio.gather(*[loop.run_in_executor(None, pd.read_csv, f"C:\\Pulmuone Fastapi\\data\\data{i}.csv") for i in range(10)])
+            data_frames = [pd.read_csv(f"C:\\Pulmuone Fastapi\\data\\data{i}.csv") for i in range(10)]
             self.total_data = pd.concat(data_frames, ignore_index=True)
             print(f"total_data: {self.total_data}")
             print("=================")
@@ -184,33 +183,37 @@ async def get_top_changes():
 
     # today_data와 yesterday_data를 code로 그룹화하여 tot의 합계를 구합니다.
     today_totals = today_data.groupby('code')['tot'].sum()
-    yesterday_totals = yesterday_data.groupby('code')['tot'].sum().loc[lambda x: x != 0]
+    yesterday_totals = yesterday_data.groupby('code')['tot'].sum().loc[lambda x: x >= 16]
     
     # 각 코드별 증감률을 계산합니다.
     changes = ((today_totals - yesterday_totals) / yesterday_totals) * 100
     
     # 증감률이 가장 큰 상위 5개를 선택합니다.
     top_changes = changes.nlargest(5)
-    
+
     # 결과를 json 형식으로 변환합니다.
     result = []
-    for rank, (code, change_rate) in enumerate(top_changes.items(), start=1):
+
+    for rank, (code, change) in enumerate(top_changes.items(), start=1):
         # 해당 코드의 정보를 추출합니다.
         category = today_data.loc[today_data['code'] == code, 'cate'].iloc[0]
         product = today_data.loc[today_data['code'] == code, 'name'].iloc[0]
-        
+        yesterday_total = int(yesterday_totals.get(code, 0))
+        today_total = int(today_totals.get(code, 0))
+
         # 부호를 결정합니다.
-        symbol = '▲' if change_rate > 0 else '▼'  # 양수이면 ▲, 음수이면 ▼
+        symbol = '▲' if change > 0 else '▼'
         
-        # 결과를 딕셔너리로 구성합니다.
+        # 결과를 딕셔너리로 구성하되, code 대신 rank를 사용합니다.
         entry = {
-            "rank": rank,
+            "rank": rank,                                 # 변경된 부분
             "category": category,
             "product": product,
-            "changeRate": f"{symbol} {abs(change_rate):.2f} %"  # 부호와 함께 증감률을 문자열 형식으로 저장
+            "yesterdayTotal": yesterday_total,
+            "todayTotal": today_total,
+            "changeRate": f"{symbol} {abs(change):.2f}%"
         }
         result.append(entry)
-    
     return result
 
 class SalesData(BaseModel):
@@ -295,49 +298,89 @@ class Product(BaseModel):
     demandForecast: List[int]
     dates: List[str]
 
-async def generate_products_async(query: str = "") -> List[Product]:
-    products = []
-    for i in range(400):
-        category = "Category" + str(random.randint(1, 50))
-        name = "Product" + str(random.randint(1, 200))
-        demand_prediction = random.randint(50, 200)
-        change_status = "▲" if random.random() > 0.5 else "▼"
-        change_rate = str(round(random.uniform(-10, 10), 2)) + "%"
-        
-        dates = []
-        start_date = datetime(2023, 1, 1)
-        end_date = datetime(2023, 12, 31)
-        extended_end_date = end_date + timedelta(days=40)
+class ProductsCache:
+    _products = None
 
-        date = start_date
-        while date <= extended_end_date:
-            formatted_date = date.strftime("%y.%m.%d")
-            dates.append(formatted_date)
-            date += timedelta(days=1)
+    @classmethod
+    async def generate_products(cls, query: str = "") -> List[Product]:
+        if cls._products is None:
+            cls._products = await cls._generate_products(query)
+        return cls._products
 
-        real_data = generate_real_data()
-        predicted_data = generate_predicted_data()
+    @classmethod
+    async def _generate_products(cls, query: str = "") -> List[Product]:
+        products = []
+
+        for i in range(1, 821):
+            category_number = (i - 1) % 14 + 1  # 1부터 14까지의 숫자를 순환하도록 계산
+            category = "Category " + str(category_number)
+            name = "Product " + str(i)
+            demand_prediction = random.randint(1000, 30000)
+            change_status = "▲" if random.random() > 0.5 else "▼"
+            change_rate = str(abs(round(random.uniform(-10, 10), 2))) + "%"
+            
+            dates = []
+            start_date = datetime(2023, 1, 1)
+            end_date = datetime(2023, 12, 31)
+            extended_end_date = end_date + timedelta(days=40)
+
+            date = start_date
+            while date <= extended_end_date:
+                formatted_date = date.strftime("%y.%m.%d")
+                dates.append(formatted_date)
+                date += timedelta(days=1)
+
+            real_data = generate_real_data()
+            predicted_data = generate_predicted_data()
+            
+            product = Product(
+                category = category,
+                name = name,
+                demandPrediction = demand_prediction,
+                changeStatus = change_status,
+                changeRate = change_rate,
+                actualVolume = real_data,
+                demandForecast = predicted_data,
+                dates = dates
+            )
+            
+            # query에 해당하는 제품만 필터링
+            if query and query.lower().replace(" ", "") not in product.name.lower().replace(" ", ""):
+                continue
+            
+            products.append(product)
         
-        product = Product(
-            category = category,
-            name = name,
-            demandPrediction = demand_prediction,
-            changeStatus = change_status,
-            changeRate = change_rate,
-            actualVolume = real_data,
-            demandForecast = predicted_data,
-            dates = dates
-        )
-        
-        # query에 해당하는 제품만 필터링
-        if query and query.lower() not in product.name.lower():
-            continue
-        
-        products.append(product)
+        return products
+
+@app.get("/products")
+async def get_products(query: str = Query(default=""), category: str = Query(default="")):
+    print("query: ", {query})
+    print("category: ", {category})
+    products = await ProductsCache.generate_products(query)
+    
+    # 쿼리가 비어있지 않은 경우 제품 필터링
+    if query:
+        products = [product for product in products if query.lower() in product.name.lower()]
+
+    # 카테고리가 제공된 경우 해당 카테고리에 속한 제품들만 필터링
+    if category:
+        products = [product for product in products if product.category == category]
     
     return products
 
-@app.get("/products")
-async def get_products(query: str = Query(default="")):
-    products = await generate_products_async(query)
-    return products
+@app.get("/categories")
+async def get_categories(query: str = Query(default="")):
+    print(query)
+    products = await ProductsCache.generate_products(query)
+    
+    # 쿼리가 비어있지 않은 경우, 카테고리 이름에 쿼리 문자열이 포함된 카테고리를 필터링
+    if query:
+        categories = set(product.category for product in products if query.lower().replace(" ", "") in product.category.lower().replace(" ", ""))
+    else:
+        # 쿼리가 비어있는 경우 모든 제품의 카테고리를 가져옴
+        categories = set(product.category for product in products)
+    
+    # 중복 제거 및 정렬된 고유한 카테고리 목록 생성
+    sorted_categories = sorted(categories)
+    
+    return sorted_categories
