@@ -8,9 +8,6 @@ from pydantic import BaseModel
 
 import random
 
-import asyncio
-# from prisma import Prisma
-
 app = FastAPI()
 
 origins = [
@@ -221,19 +218,18 @@ class SalesData(BaseModel):
     series: List[int]
 
 @app.get("/sales-trend", response_model=SalesData)
-async def get_sales_trend_chart_data():
-    hours=[]
-    for hour in range(13, 24):
-        for minute in [30, 0]:
-            if minute == 0:
-                next_hour = hour + 1 if hour < 24 else 0
-                hours.append(f"{next_hour:02d}:00")
-            else:
-                hours.append(f"{hour:02d}:{minute:02d}")
+async def group_by_date_bin_to_json():
+    today_data = await data_processor.extract_today_data()
+    filtered_data = today_data[(today_data['date'].dt.hour >= 9) & (today_data['date'].dt.hour <= 23)]  # 오전 9시 ~ 오후 11시 59분
+    filtered_data['date_bin'] = filtered_data['date'].dt.floor('30T')  # 30분 단위 구간 분할
+    grouped = filtered_data.groupby('date_bin')['tot'].sum().reset_index()  # 시간대별로 그룹화
+    grouped['date_bin'] = grouped['date_bin'].dt.strftime('%H:%M')  # 시간대 표기법 지정
 
-    values = [125, 153, 142, 123, 116, 112, 140, 150, 146, 170, 180, 190, 207, 180, 166, 122, 111, 90, 76, 54, 40]
-    
-    return SalesData(categories=hours, series=values)
+    # SalesData 모델에 맞추어 데이터 형식을 변환
+    categories = grouped['date_bin'].tolist()
+    series = grouped['tot'].tolist()
+
+    return {"categories": categories, "series": series}
 
 class PredictData(BaseModel):
     categories: List[str]
