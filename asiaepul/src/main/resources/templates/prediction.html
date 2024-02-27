@@ -39,22 +39,20 @@
                 <h1 class="font-size:4 color:base-6 font-weight:600 align-self:start">수요예측 리스트</h1>
                 <section class="search-bar">
                     <h1 class="d:none">이름 검색 폼</h1>
-                    <form action="">
-                        <fieldset class="d:flex justify-content:center">
-							
-							<div class="popup-container">
-							    <div class="popup">
-							        <div class="position:relative">
-		                                <input class="search-text" type="text" placeholder="카테고리를 검색해주세요.">
-		                                <button type="submit" class="search-input icon icon-search icon-size:2 back:transparent position:absolute" value="검색">
-		                            </div>
-		                            <div class="popup-contents">
-										<!--<div class="content">asd</div>-->
-									</div>
-								    <button type="button" class="popup-close">닫기</button>
-							    </div>
+                    <div class="popup-container">
+					    <div class="popup">
+					        <div class="position:relative">
+                                <input class="search-text" type="text" placeholder="카테고리를 검색해주세요.">
+                                <button class="search-input icon icon-search icon-size:2 back:transparent position:absolute" value="검색">
+                            </div>
+                            <div class="popup-contents">
+								<!--<div class="content">asd</div>-->
 							</div>
-							
+						    <button type="button" class="popup-close">닫기</button>
+					    </div>
+					</div>
+                    <form class="product-form" action="">
+                        <fieldset class="d:flex justify-content:center">
                             <button type="button" class="icon icon-category mr:4 justify-self:center align-self:center cursor:pointer">카테고리</button>
                             <div class="input-box position:relative">
                                 <input class="search-text" type="text" placeholder="상품명을 검색해주세요.">

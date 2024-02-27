@@ -194,6 +194,11 @@
 		
 		text-align: center;
 	}
+.popup-contents
+	.content:hover {
+		background-color: rgba(126, 126, 126, 0.08);
+	}
+	
 .popup-container
 	.icon-search {
 		top: 7px;
@@ -218,7 +223,7 @@
 
 .popup-container
 	.search-text {
-		padding-top: 5px;
+		padding-top: 3px;
 		padding-left: 30px;
         width: 250px;
         height: 30px;
