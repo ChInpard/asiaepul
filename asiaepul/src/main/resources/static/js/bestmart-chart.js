@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		const chartData = await response.json();
 		
 	    const option = {
+			color: ['#2D68FE'],
 			toolbox: {
 	            feature: {
 	                saveAsImage: { show: true }
@@ -42,7 +43,10 @@ document.addEventListener('DOMContentLoaded', function() {
 	                label: {
 	                    show: true,
 	                    position: 'inside',
-	                    formatter: '{c}'
+	                    formatter: '{c}',
+	                    textStyle: {
+	                        color: '#ffffff'
+	                    }
 	                }
 	            }
 	        ]

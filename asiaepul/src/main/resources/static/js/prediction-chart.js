@@ -19,12 +19,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 	        {
 	            "name": "실제 수요",
 	            "type": "line",
-	            "data": chartData.series[0].realData
+	            "data": chartData.series[0].realData,
+	            "color": '#2D68FE'
 	        },
 	        {
 	            "name": "예측 수요",
 	            "type": "line",
-	            "data": chartData.series[1].predictedData
+	            "data": chartData.series[1].predictedData,
+	            "color": 'rgba(73, 211, 70, 0.6)'
 	        }
 	    ];
 	

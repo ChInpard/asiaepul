@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		console.log(chartData);
 
 	    const option = {
+			color: ['rgba(255, 2, 2, 0.7)'],
 	        tooltip: {
 	            trigger: 'axis'
 	        },
