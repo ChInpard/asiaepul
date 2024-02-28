@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 from datetime import datetime, timedelta
 from fastapi import FastAPI, Query
 from starlette.middleware.cors import CORSMiddleware
@@ -35,7 +36,11 @@ class DataProcessor:
     async def read_and_merge_data(self):
         if self.total_data is None:
             # 데이터 읽기 및 병합
-            data_frames = [pd.read_csv(f"C:\\Pulmuone Fastapi\\data\\data{i}.csv") for i in range(10)]
+            data_frames = []
+            directory = "C:\\Pulmuone Fastapi\\data\\"
+            for filename in os.listdir(directory):
+                if filename.endswith(".csv"):
+                    data_frames.append(pd.read_csv(os.path.join(directory, filename)))
             self.total_data = pd.concat(data_frames, ignore_index=True)
             print(f"total_data: {self.total_data}")
             print("=================")
@@ -208,7 +213,8 @@ async def get_top_changes():
             "product": product,
             "yesterdayTotal": yesterday_total,
             "todayTotal": today_total,
-            "changeRate": f"{symbol} {abs(change):.2f}%"
+            "status": f"{symbol}",
+            "changeRate": f"{abs(change):.2f}%"
         }
         result.append(entry)
     return result
@@ -285,6 +291,7 @@ def generate_predicted_data():
 
 
 class Product(BaseModel):
+    id: int
     category: str
     name: str
     demandPrediction: int
@@ -313,7 +320,7 @@ class ProductsCache:
             name = "Product " + str(i)
             demand_prediction = random.randint(1000, 30000)
             change_status = "▲" if random.random() > 0.5 else "▼"
-            change_rate = str(abs(round(random.uniform(-10, 10), 2))) + "%"
+            change_rate = str(abs(round(random.uniform(-10, 10), 2)))
             
             dates = []
             start_date = datetime(2023, 1, 1)
@@ -330,6 +337,7 @@ class ProductsCache:
             predicted_data = generate_predicted_data()
             
             product = Product(
+                id = i,
                 category = category,
                 name = name,
                 demandPrediction = demand_prediction,
@@ -380,3 +388,63 @@ async def get_categories(query: str = Query(default="")):
     sorted_categories = sorted(categories)
     
     return sorted_categories
+
+
+class BigDataModel:
+    def __init__(self):
+        self.product_cache = {}
+
+    async def run_analysis(self, productId: int) -> dict:
+        if productId not in self.product_cache:
+            # ProductsCache를 사용하여 제품 정보 가져오기
+            products = await ProductsCache.generate_products()
+        
+            # productId를 사용하여 해당 제품 찾기
+            product = next((p for p in products if p.id == productId), None)
+        
+            if product:
+                # 제품 정보를 사용하여 분석 실행
+                result = {
+                    "productName": product.name,
+                    "actualVolume": product.actualVolume,
+                    "demandForecast": product.demandForecast,
+                    "dates": product.dates
+                }
+                # 캐시에 저장
+                self.product_cache[productId] = result
+            else:
+                result = {"error": "Product not found"}
+        else:
+            # 캐시에서 결과 반환
+            result = self.product_cache[productId]
+        
+        return result
+    
+    async def calculate_error(self, productId: int) -> dict:
+        # ProductsCache를 사용하여 제품 정보 가져오기
+        products = await ProductsCache.generate_products()
+
+        # productId를 사용하여 해당 제품 찾기
+        product = next((p for p in products if p.id == productId), None)
+
+        if product:
+            # 실제 판매량과 예측 판매량 간의 오차 계산
+            errors = [actual - forecast for actual, forecast in zip(product.actualVolume, product.demandForecast)]
+            # 오차를 결과로 반환
+            result = {"productName": product.name, "errors": errors}
+        else:
+            result = {"error": "Product not found"}
+
+        return result
+
+# BigDataModel 객체 생성
+big_data_model_1 = BigDataModel()
+big_data_model_2 = BigDataModel()
+
+@app.get("/analysis/{productId}")
+async def analyze_data(productId: int):
+    # 두 모델에서 각각 분석 실행
+    result_1 = await big_data_model_1.run_analysis(productId)
+    result_2 = await big_data_model_2.calculate_error(productId)
+    
+    return {"resultModelOne": result_1, "resultModelTwo": result_2}
