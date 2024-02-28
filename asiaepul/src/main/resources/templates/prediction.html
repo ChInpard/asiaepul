@@ -13,6 +13,7 @@
     <link href="/css/icon.css" rel="stylesheet" type="text/css">
     <link href="/css/components/header.css" rel="stylesheet" type="text/css">
     <link href="/css/components/prediction.css" rel="stylesheet" type="text/css">
+    <script src="https://fastly.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js" defer></script>
     <script src="/js/search-product.js" defer></script>
     <title>수요 예측</title>
 </head>
@@ -36,7 +37,7 @@
             <h1 class="d:none">분석 섹션</h1>
 
             <section class="prediction-list d:flex flex:col align-items:center p:3 bg-color:base-0 border-tr-radius:2 box-shadow:0">
-                <h1 class="font-size:4 color:base-6 font-weight:600 align-self:start">수요예측 리스트</h1>
+                <h1 class="font-size:4 color:base-6 font-weight:600 align-self:start">수요 예측 리스트</h1>
                 <section class="search-bar">
                     <h1 class="d:none">이름 검색 폼</h1>
                     <div class="popup-container">
@@ -68,15 +69,13 @@
                     <div class="title d:flex align-items:center">
                         <div class="product-name color:base-4">제품<button class="icon icon-filter icon-size:2 cursor:pointer"></button></div>
                         <div class="demand color:base-4">수요예측량<button class="icon icon-filter icon-size:2 cursor:pointer"></button></div>
-                        <div class="toggle color:base-4 text-align:center">
-                            <button class="clicked">다음달</button><button class="non-clicked">내년</button>
-                        </div>
+                        <div class="variance color:base-4">다음달<button class="icon icon-filter icon-size:2 cursor:pointer"></button></div>
                     </div>
                     <div class="contents overflow:auto h:580px">
 		                <!--<div class="product d:flex align-items:center">
 		                    <div class="product-name color:base-5">${m.productName}</div>
 			                <div class="demand color:base-5 text-align:center">${m.demand}</div>
-		                    <div class="toggle d:flex flex:col justify-content:center align-items:center">
+		                    <div class="variance d:flex flex:col justify-content:center align-items:center">
 		                        <span class="h:25px font-size:3 color:main-1">${m.status}</span>
 		                        <span class="h:25px font-size:0 color:base-5">${m.variance}</span>
 		                    </div>
@@ -97,22 +96,17 @@
                 </dl>
             </section>
 
-            <section class="prediction-calculation p:3 bg-color:base-0 border-radius:2 box-shadow:0">
-                <h1 class="font-size:4 color:base-6 font-weight:600">예측 산출 가중치</h1>
-                <section class="container d:flex flex:col gap:4 mv:5 mh:6">
-                    <h1 class="d:none"></h1>
-                    <div class="d:flex gap:4">
-                        <div class="content font-size:0 color:base-6">1 weeks ago</div>
-                        <div class="graph-container w:312 bg-color:base-2 border-radius:3 position:relative">
-                            <div class="graph w:75% h:1 bg-color:base-6 border-radius:3 position:absolute"></div>
-                        </div>
-                        <div class="content font-size:0 color:base-8 font-weight:bold"><span>75</span> <span>%</span></div>
-                    </div>
-                </section>
+            <section class="analysis-select p:3 bg-color:base-0 border-radius:2 box-shadow:0">
+                <h1 class="font-size:4 color:base-6 font-weight:600">빅데이터 분석 모델</h1>
+                <div class="d:flex gap:6 text-align:center mv:6 mh:6">
+                    <button class="analysis-model font-size:1 w:50% p:4 bg-color:main-4 border:none border-radius:3 cursor:pointer">모델 1</button>
+                    <button class="analysis-model font-size:1 w:50% p:4 bg-color:main-1 border:none border-radius:3 cursor:pointer">모델 2</button>
+                </div>
             </section>
 
             <section class="product-prediction p:3 bg-color:base-0 border-radius:2 box-shadow:0">
-                <h1 class="font-size:4 color:base-6 font-weight:600">product name</h1>
+                <h1 class="product-name font-size:4 color:base-6 font-weight:600">product name</h1>
+            	<div id="product-prediction-chart" class="position:relative w:1 h:1"></div>
             </section>
 
         </section>

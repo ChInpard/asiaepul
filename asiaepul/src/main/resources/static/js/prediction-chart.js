@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	            ...s,
 	            tooltip: {
 	                valueFormatter: function(value) {
-	                return value + ' box';  // 단위
+	                return value + ' ea';  // 단위
 	                }
 	            },
 	            symbol: 'none'

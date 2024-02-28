@@ -58,6 +58,8 @@ window.addEventListener("load", function (){
 	    `);
 	    
 	    for (let i=0; i<5; i++) {
+			let statusColor = tableData[i].status === "▲" ? "main-1" : "main-2";
+			
 		    let template = `
 	            <tr>
 	                <td class="text-align:center">${tableData[i].rank}</td>
@@ -65,7 +67,7 @@ window.addEventListener("load", function (){
 	                <td class="text-align:center">${tableData[i].product}</td>
 	                <td class="text-align:center">${tableData[i].yesterdayTotal}</td>
 	                <td class="text-align:center">${tableData[i].todayTotal}</td>
-	                <td class="text-align:center">${tableData[i].changeRate}</td>
+	                <td class="text-align:center"><span class="color:${statusColor}">${tableData[i].status}</span> ${tableData[i].changeRate}</td>
 	            </tr>
 		    `;
 		    

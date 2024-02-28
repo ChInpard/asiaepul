@@ -50,7 +50,7 @@ margin
 .w\:auto {width: auto !important;} 
 .w\:inherit {width: inherit !important;} 
 .w\:initial {width: initial !important;} 
-.w\:166 {width: 166px !important;} 
+.w\:166px {width: 166px !important;} 
 .w\:312 {width: 312px !important;} 
 .w\:361 {width: 361px !important;} 
 
@@ -72,6 +72,7 @@ margin
 .h\:initial {height: initial !important;}
 
 .h\:25px {height: 25px !important;}
+
 .h\:580px {height: 580px !important;}
 
 
@@ -230,6 +231,7 @@ margin
 .bg-color\:main-1{ background-color: var(--color-main-1) !important; }
 .bg-color\:main-2{ background-color: var(--color-main-2) !important; }
 .bg-color\:main-3{ background-color: var(--color-main-3) !important; }
+.bg-color\:main-4{ background-color: var(--color-main-4) !important; }
 
 .bg-color\:primary-1{ background-color: var(--color-primary-1) !important; }
 .bg-color\:primary-2{ background-color: var(--color-primary-2) !important; }
