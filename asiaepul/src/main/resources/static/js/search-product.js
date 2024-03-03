@@ -6,7 +6,6 @@ window.addEventListener("load", function() {
 	const productList = predictionSection.querySelector(".product-list");
 	const productListSection = productList.querySelector(".contents");
 	
-	
 	const categoryButton = predictionSection.querySelector(".icon-category");
 	
 	const nameSortButton = productList.querySelector(".product-name .icon-filter");
@@ -19,19 +18,16 @@ window.addEventListener("load", function() {
 	    const searchText = popupContainer.querySelector(".popup .search-text");
 	    const categoryList = popupContainer.querySelector(".popup .popup-contents");
 	    
-	    /** icon-filter 클릭 시 보여지는 로직 */
-	    await searchCategories();
-	    
 	    // 팝업 컨테이너를 보이도록 설정
 	    popupContainer.style.display = 'block';
-	   	
 	    
+	    /** icon-filter 클릭 시 보여지는 로직 */
+	    await searchCategories();
+	   	
 		/** 카테고리 검색 조회 로직 */
 		const categorySearchInput = popupContainer.querySelector(".popup .search-input");
 		categorySearchInput.addEventListener("click", async() => {
 		    await searchCategories();
-		    
-		    
 		});
 		const categorySearchText = popupContainer.querySelector(".popup .search-text");
 		categorySearchText.addEventListener("keydown", async(e) => {
@@ -61,13 +57,14 @@ window.addEventListener("load", function() {
 			    category.addEventListener("click", async() => {
 			        const clickedCategory = category.textContent;
 			        console.log(clickedCategory);
-			        await searchProducts(clickedCategory);
 			        
 			        searchText.value = ""; // 검색 텍스트 초기화
 				    categoryList.innerHTML = ""; // 카테고리 목록 초기화
 				    
 				    // 팝업 컨테이너를 숨김 상태로 변경
 				    popupContainer.style.display = 'none';
+			        
+					await searchProducts(clickedCategory);
 			    });
 			});
             
@@ -92,7 +89,7 @@ window.addEventListener("load", function() {
 		
 	productSearchInput.addEventListener("click", async(e) => {
 		e.preventDefault();
-		
+        
 		await searchProducts();
 	});
 	
@@ -148,11 +145,15 @@ window.addEventListener("load", function() {
 	    objList.forEach(obj => {
 	        // 이미 클릭된 요소는 클릭 이벤트를 추가하지 않음
 	        if (!obj.classList.contains("clicked")) {
-	            obj.addEventListener("click", function() {
+	            obj.addEventListener("click", async function() {
 	                const productName = obj.querySelector(".product-name").textContent;
 	                const productId = obj.querySelector(".product input").value;
 	                // 현재 클릭된 요소가 이미 clicked 클래스를 가지고 있는지 확인
 	                const isClicked = obj.classList.contains("clicked");
+	                
+	                // 오버레이 추가: 로딩 중 메시지 표시
+	                const loadingOverlay = document.querySelector(".product-prediction .loading-overlay");
+	                loadingOverlay.classList.add("active");
 	
 	                // 모든 다른 요소를 순회하며 클래스 변경
 	                objList.forEach(otherObj => {
@@ -161,34 +162,63 @@ window.addEventListener("load", function() {
 	                        otherObj.classList.add("non-clicked");
 	                    }
 	                });
+	                
 	                console.log(productName);
 	                console.log(productId);
-	                getAnlysisData(productId);
-	
+	                
 	
 	                // 현재 클릭된 요소가 clicked 클래스를 가지고 있지 않은 경우에만 클래스 변경
 	                if (!isClicked) {
 	                    obj.classList.remove("non-clicked");
 	                    obj.classList.add("clicked");
 	                }
+	                
+	                await getAnalysisData(productId);
+	                
+	                // 오버레이 제거: 로딩 완료
+	                loadingOverlay.classList.remove("active");
 	            });
 	        }
 	    });
 	}
 
+
     
     
-    async function getAnlysisData(productId) {
+    async function getAnalysisData(productId) {
 		const url = `http://localhost:8000/analysis/${productId}`;
 		const response = await fetch(url);
 	    const analysisData = await response.json();
 	    console.log(analysisData);
 	    
-	    const modelName = predictionSection.querySelector(".AI-apply dl dd");
+	    const modelName = predictionSection.querySelector(".AI-apply dl .model-name");
+	    const modelRank = predictionSection.querySelector(".AI-apply dl .rank");
+	    const modelCount = predictionSection.querySelector(".AI-apply dl .model-count");
+	    const modelRate = predictionSection.querySelector(".AI-apply dl .rate");
 	    const modelSelectButton = predictionSection.querySelectorAll(".analysis-select .analysis-model");
 	    
 	    let model = analysisData.resultModelOne;
-	    modelName.innerHTML = model;
+	    
+        // 모델 이름 설정
+        modelName.innerHTML = Object.keys(analysisData)[0];
+
+        // 모델 개수 설정
+        let modelCountValue = Object.keys(analysisData).length;
+        modelCount.innerHTML = modelCountValue;
+
+        // 예측 정확도 설정
+        let modelRateValue = analysisData.resultModelOne.accuracy;
+        modelRate.innerHTML = `${modelRateValue} %`;
+
+        // 정렬된 모델 리스트 생성
+        let sortedModelList = Object.keys(analysisData).sort((a, b) => {
+            return analysisData[b].rate - analysisData[a].rate; // 예측 정확도를 기준으로 내림차순 정렬
+        });
+
+        // 해당 모델의 순위 찾기
+        const modelRankValue = sortedModelList.indexOf("resultModelOne") + 1;
+        modelRank.innerHTML = `${modelRankValue}`;
+	    
 	    
 	    let productName = predictionSection.querySelector(".product-prediction .product-name");
 	    productName.innerHTML = model.productName;
@@ -202,11 +232,23 @@ window.addEventListener("load", function() {
 	    // 각 모델 선택 버튼에 대한 클릭 이벤트 리스너 추가
 	    modelSelectButton.forEach((button, index) => {
 	        button.addEventListener("click", async () => {
-	            // 클릭된 버튼의 텍스트를 모델 이름으로 설정
-	            modelName.innerHTML = `분석모델 ${index + 1}`;
-	            
 	            // 모델을 선택된 모델로 설정
-	            model = index === 0 ? analysisData.resultModelOne : analysisData.resultModelTwo;
+		        const selectedModel = index === 0 ? Object.keys(analysisData)[0] : Object.keys(analysisData)[1];
+		        
+		        // 모델 이름 설정
+		        modelName.innerHTML = selectedModel;
+		        
+		        // 예측 정확도 설정
+		        const modelRateValue = analysisData[selectedModel].accuracy;
+		        modelRate.innerHTML = `${modelRateValue} %`;
+		        
+		        // 정렬된 모델 리스트 생성
+		        let sortedModelList = Object.keys(analysisData).sort((a, b) => analysisData[b].rate - analysisData[a].rate); // 예측 정확도를 기준으로 내림차순 정렬
+		        
+		        // 해당 모델의 순위 찾기
+		        const modelRankValue = sortedModelList.indexOf(selectedModel) + 1;
+		        modelRank.innerHTML = `${modelRankValue}`;
+	            
 	            
 	            // 새로운 모델 데이터로 차트 다시 그리기
 	            realData = model.actualVolume;

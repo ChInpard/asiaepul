@@ -36,7 +36,7 @@
 /* graph & table 섹션 */
 .graph-table {
     display: grid;
-    grid-template-columns: 0.23fr 0.37fr 0.4fr;
+    grid-template-columns: 0.20fr 0.37fr 0.43fr;
     grid-template-rows: 300px 300px;
     gap: 20px;
 

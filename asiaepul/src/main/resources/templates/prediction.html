@@ -46,8 +46,11 @@
                                 <input class="search-text" type="text" placeholder="카테고리를 검색해주세요.">
                                 <button class="search-input icon icon-search icon-size:2 back:transparent position:absolute" value="검색">
                             </div>
-                            <div class="popup-contents">
+                            <div class="popup-contents position:relative">
 								<!--<div class="content">asd</div>-->
+								<div class="loading-overlay">
+							        <div class="loading-spinner"></div>
+							    </div>
 							</div>
 						    <button type="button" class="popup-close">닫기</button>
 					    </div>
@@ -71,7 +74,7 @@
                         <div class="demand color:base-4">수요예측량<button class="icon icon-filter icon-size:2 cursor:pointer"></button></div>
                         <div class="variance color:base-4">다음달<button class="icon icon-filter icon-size:2 cursor:pointer"></button></div>
                     </div>
-                    <div class="contents overflow:auto h:580px">
+                    <div class="contents overflow:auto h:580px position:relative">
 		                <!--<div class="product d:flex align-items:center">
 		                    <div class="product-name color:base-5">${m.productName}</div>
 			                <div class="demand color:base-5 text-align:center">${m.demand}</div>
@@ -80,7 +83,11 @@
 		                        <span class="h:25px font-size:0 color:base-5">${m.variance}</span>
 		                    </div>
 		        		</div>-->
+		        		<div class="loading-overlay">
+					        <div class="loading-spinner"></div>
+					    </div>
 	        		</div>
+	        		
                 </section>
             </section>
 
@@ -88,11 +95,11 @@
                 <h1 class="font-size:4 color:base-6 font-weight:600">인공지능 적용 현황</h1>
                 <dl class="">
                     <dt class="font-size:0 color:base-4">적용된 인공지능 모델</dt>
-                    <dd class="font-size:2 color:base-8 font-weight:bold">Model Name</dd>
+                    <dd class="model-name font-size:2 color:base-8 font-weight:bold">Model Name</dd>
                     <dt class="font-size:0 color:base-4">순위 / 실험된 모델</dt>
-                    <dd class="font-size:2 color:base-8 font-weight:bold"><span>순위</span> / <span>전체</span></dd>
+                    <dd class="font-size:2 color:base-8 font-weight:bold"><span class="rank">순위</span> / <span class="model-count">전체</span></dd>
                     <dt class="font-size:0 color:base-4">예측 정확도</dt>
-                    <dd class="font-size:2 color:base-8 font-weight:bold"><span>수치</span> <span>%</span></dd>
+                    <dd class="rate font-size:2 color:base-8 font-weight:bold">수치 %</dd>
                 </dl>
             </section>
 
@@ -104,9 +111,12 @@
                 </div>
             </section>
 
-            <section class="product-prediction p:3 bg-color:base-0 border-radius:2 box-shadow:0">
-                <h1 class="product-name font-size:4 color:base-6 font-weight:600">product name</h1>
+            <section class="product-prediction p:3 bg-color:base-0 border-radius:2 box-shadow:0 position:relative">
+                <h1 class="product-name font-size:4 color:base-6 font-weight:600">제품명</h1>
             	<div id="product-prediction-chart" class="position:relative w:1 h:1"></div>
+            	<div class="loading-overlay">
+			        <div class="loading-spinner"></div>
+			    </div>
             </section>
 
         </section>
