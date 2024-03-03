@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import csv
 from datetime import datetime, timedelta
 from fastapi import FastAPI, Query
 from starlette.middleware.cors import CORSMiddleware
@@ -39,7 +40,8 @@ class DataProcessor:
             data_frames = []
             directory = "C:\\Pulmuone Fastapi\\data\\"
             for filename in os.listdir(directory):
-                if filename.endswith(".csv"):
+                # 파일명에 "data"가 포함된 경우에만 읽어들임
+                if filename.startswith("data") and filename.endswith(".csv"):
                     data_frames.append(pd.read_csv(os.path.join(directory, filename)))
             self.total_data = pd.concat(data_frames, ignore_index=True)
             print(f"total_data: {self.total_data}")
@@ -89,13 +91,17 @@ class DataProcessor:
         best_mart = today_data.groupby('mart')['tot'].sum().idxmax()
         return best_mart
 
-    
-    def get_peak_time(self,today_data):
-        today_data = today_data.copy()  # 복사본 생성
+    def get_peak_time(self, today_data):
+        # today_data = today_data.copy()  # 데이터 프레임의 복사본 생성
         today_data['date'] = pd.to_datetime(today_data['date'])
-        peak_hour = today_data['date'].dt.hour.value_counts().idxmax()
-        start_time = pd.to_datetime(f'{peak_hour}:00:00').strftime('%H:%M')
-        end_time = (pd.to_datetime(f'{peak_hour}:00:00') + pd.Timedelta(hours=1)).strftime('%H:%M')
+        # 'date' 필드를 이용해 각 기록을 30분 단위로 라운딩합니다.
+        today_data['date_bin'] = today_data['date'].dt.floor('30T')
+        # 'date_bin'을 기준으로 그룹화하고, 'tot'의 합계를 계산합니다.
+        peak_time_bin = today_data.groupby('date_bin')['tot'].sum().idxmax()
+        # 피크 시간대의 시작 시간을 구합니다.
+        start_time = peak_time_bin.strftime('%H:%M')
+        # 피크 시간대의 끝 시간을 구합니다. 피크 시간대는 30분 구간이므로, 시작 시간에 30분을 더합니다.
+        end_time = (peak_time_bin + pd.Timedelta(minutes=30)).strftime('%H:%M')
         peak_time = f"{start_time} ~ {end_time}"
         return peak_time
 
@@ -226,7 +232,7 @@ class SalesData(BaseModel):
 @app.get("/sales-trend", response_model=SalesData)
 async def group_by_date_bin_to_json():
     today_data = await data_processor.extract_today_data()
-    filtered_data = today_data[(today_data['date'].dt.hour >= 9) & (today_data['date'].dt.hour <= 23)]  # 오전 9시 ~ 오후 11시 59분
+    filtered_data = today_data[(today_data['date'].dt.hour >= 9) & (today_data['date'].dt.hour <= 24)]  # 오전 9시 ~ 오후 11시 59분
     filtered_data['date_bin'] = filtered_data['date'].dt.floor('30T')  # 30분 단위 구간 분할
     grouped = filtered_data.groupby('date_bin')['tot'].sum().reset_index()  # 시간대별로 그룹화
     grouped['date_bin'] = grouped['date_bin'].dt.strftime('%H:%M')  # 시간대 표기법 지정
@@ -299,6 +305,7 @@ class Product(BaseModel):
     changeRate: str
     actualVolume: List[int]
     demandForecast: List[int]
+    accuracy: float
     dates: List[str]
 
 class ProductsCache:
@@ -314,54 +321,75 @@ class ProductsCache:
     async def _generate_products(cls, query: str = "") -> List[Product]:
         products = []
 
-        for i in range(1, 821):
-            category_number = (i - 1) % 14 + 1  # 1부터 14까지의 숫자를 순환하도록 계산
-            category = "Category " + str(category_number)
-            name = "Product " + str(i)
-            demand_prediction = random.randint(1000, 30000)
-            change_status = "▲" if random.random() > 0.5 else "▼"
-            change_rate = str(abs(round(random.uniform(-10, 10), 2)))
-            
-            dates = []
-            start_date = datetime(2023, 1, 1)
-            end_date = datetime(2023, 12, 31)
-            extended_end_date = end_date + timedelta(days=40)
+        # CSV 파일에서 제품 정보 가져오기
+        with open('data/product.csv', newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                product_id = int(row['id'])
+                name = row['name']
+                category = row['cate']
+                
+                # 임의의 데이터 생성
+                demand_prediction = random.randint(1000, 30000)
+                change_status = "▲" if random.random() > 0.5 else "▼"
+                change_rate = str(abs(round(random.uniform(-10, 10), 2)))
+                accuracy = round(random.uniform(90, 100), 2)
+                
+                dates = []
+                start_date = datetime(2023, 1, 1)
+                end_date = datetime(2023, 12, 31)
+                extended_end_date = end_date + timedelta(days=40)
 
-            date = start_date
-            while date <= extended_end_date:
-                formatted_date = date.strftime("%y.%m.%d")
-                dates.append(formatted_date)
-                date += timedelta(days=1)
+                date = start_date
+                while date <= extended_end_date:
+                    formatted_date = date.strftime("%y.%m.%d")
+                    dates.append(formatted_date)
+                    date += timedelta(days=1)
 
-            real_data = generate_real_data()
-            predicted_data = generate_predicted_data()
-            
-            product = Product(
-                id = i,
-                category = category,
-                name = name,
-                demandPrediction = demand_prediction,
-                changeStatus = change_status,
-                changeRate = change_rate,
-                actualVolume = real_data,
-                demandForecast = predicted_data,
-                dates = dates
-            )
-            
-            # query에 해당하는 제품만 필터링
-            if query and query.lower().replace(" ", "") not in product.name.lower().replace(" ", ""):
-                continue
-            
-            products.append(product)
-        
+                real_data = generate_real_data()
+                predicted_data = generate_predicted_data()
+
+                product = Product(
+                    id=product_id,
+                    category=category,
+                    name=name,
+                    demandPrediction=demand_prediction,
+                    changeStatus=change_status,
+                    changeRate=change_rate,
+                    actualVolume=real_data,
+                    demandForecast=predicted_data,
+                    accuracy=accuracy,
+                    dates=dates
+                )
+
+                # 쿼리에 해당하는 제품만 필터링
+                if query and query.lower() not in product.name.lower():
+                    continue
+
+                products.append(product)
+
         return products
+
+def generate_real_data():
+    data = []
+    for i in range(365):
+        random_value = random.randint(80, 250)
+        data.append(random_value)
+
+    return data
+
+def generate_predicted_data():
+    data = []
+    for i in range(365 + 30):
+        random_value = random.randint(80, 250)
+        data.append(random_value)
+
+    return data
 
 @app.get("/products")
 async def get_products(query: str = Query(default=""), category: str = Query(default="")):
-    print("query: ", {query})
-    print("category: ", {category})
     products = await ProductsCache.generate_products(query)
-    
+
     # 쿼리가 비어있지 않은 경우 제품 필터링
     if query:
         products = [product for product in products if query.lower() in product.name.lower()]
@@ -369,23 +397,28 @@ async def get_products(query: str = Query(default=""), category: str = Query(def
     # 카테고리가 제공된 경우 해당 카테고리에 속한 제품들만 필터링
     if category:
         products = [product for product in products if product.category == category]
-    
+
     return products
 
 @app.get("/categories")
 async def get_categories(query: str = Query(default="")):
     print(query)
-    products = await ProductsCache.generate_products(query)
-    
+    # CSV 파일에서 카테고리 데이터 불러오기
+    categories = set()
+    with open('data/category.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            categories.add(row[1])  # CSV 파일의 두 번째 열에 있는 카테고리명을 가져옴
+
     # 쿼리가 비어있지 않은 경우, 카테고리 이름에 쿼리 문자열이 포함된 카테고리를 필터링
     if query:
-        categories = set(product.category for product in products if query.lower().replace(" ", "") in product.category.lower().replace(" ", ""))
+        filtered_categories = [category for category in categories if query.lower().replace(" ", "") in category.lower().replace(" ", "")]
     else:
-        # 쿼리가 비어있는 경우 모든 제품의 카테고리를 가져옴
-        categories = set(product.category for product in products)
-    
-    # 중복 제거 및 정렬된 고유한 카테고리 목록 생성
-    sorted_categories = sorted(categories)
+        # 쿼리가 비어있는 경우 모든 카테고리를 사용
+        filtered_categories = list(categories)
+
+    # 정렬된 카테고리 목록 반환
+    sorted_categories = sorted(filtered_categories)
     
     return sorted_categories
 
@@ -401,13 +434,15 @@ class BigDataModel:
         
             # productId를 사용하여 해당 제품 찾기
             product = next((p for p in products if p.id == productId), None)
-        
+            accuracy = round(random.uniform(90, 100), 2)
+
             if product:
                 # 제품 정보를 사용하여 분석 실행
                 result = {
                     "productName": product.name,
                     "actualVolume": product.actualVolume,
                     "demandForecast": product.demandForecast,
+                    "accuracy": accuracy,
                     "dates": product.dates
                 }
                 # 캐시에 저장
@@ -421,20 +456,31 @@ class BigDataModel:
         return result
     
     async def calculate_error(self, productId: int) -> dict:
-        # ProductsCache를 사용하여 제품 정보 가져오기
-        products = await ProductsCache.generate_products()
+        if productId not in self.product_cache:
+            # ProductsCache를 사용하여 제품 정보 가져오기
+            products = await ProductsCache.generate_products()
+        
+            # productId를 사용하여 해당 제품 찾기
+            product = next((p for p in products if p.id == productId), None)
+            accuracy = round(random.uniform(90, 100), 2)
 
-        # productId를 사용하여 해당 제품 찾기
-        product = next((p for p in products if p.id == productId), None)
-
-        if product:
-            # 실제 판매량과 예측 판매량 간의 오차 계산
-            errors = [actual - forecast for actual, forecast in zip(product.actualVolume, product.demandForecast)]
-            # 오차를 결과로 반환
-            result = {"productName": product.name, "errors": errors}
+            if product:
+                # 제품 정보를 사용하여 분석 실행
+                result = {
+                    "productName": product.name,
+                    "actualVolume": product.actualVolume,
+                    "demandForecast": product.demandForecast,
+                    "accuracy": accuracy,
+                    "dates": product.dates
+                }
+                # 캐시에 저장
+                self.product_cache[productId] = result
+            else:
+                result = {"error": "Product not found"}
         else:
-            result = {"error": "Product not found"}
-
+            # 캐시에서 결과 반환
+            result = self.product_cache[productId]
+        
         return result
 
 # BigDataModel 객체 생성
