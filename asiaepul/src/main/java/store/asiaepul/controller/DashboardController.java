@@ -9,7 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
-import store.asiaepul.entity.DataModel;
+import store.asiaepul.entity.TodayDatas;
 
 @Controller
 public class DashboardController {
@@ -21,17 +21,20 @@ public class DashboardController {
     public String index(Model model) {
     	
     	Map<String, String> apiUrls = new HashMap<>();
+    	apiUrls.put("http://localhost:8000/today-date", "td");
     	apiUrls.put("http://localhost:8000/variance", "var");
-    	apiUrls.put("http://localhost:8000/best-category", "cate");
-    	apiUrls.put("http://localhost:8000/best-product", "prod");
-    	apiUrls.put("http://localhost:8000/best-mart", "mart");
-    	apiUrls.put("http://localhost:8000/peaktime", "peak");
+    	apiUrls.put("http://localhost:8000/best-category", "bc");
+    	apiUrls.put("http://localhost:8000/worst-category", "wc");
+    	apiUrls.put("http://localhost:8000/best-product", "bp");
+    	apiUrls.put("http://localhost:8000/worst-product", "wp");
+    	apiUrls.put("http://localhost:8000/peaktime", "p");
+    	apiUrls.put("http://localhost:8000/off-peaktime", "op");
 
     	for (Map.Entry<String, String> entry : apiUrls.entrySet()) {
     	    String url = entry.getKey();
     	    String attribute = entry.getValue();
     	    
-    	    DataModel data = restTemplate.getForObject(url, DataModel.class);
+    	    TodayDatas data = restTemplate.getForObject(url, TodayDatas.class);
     	    model.addAttribute(attribute, data);
     	}
 

@@ -34,6 +34,7 @@
                 <li><a class="font-size:1" href="/prediction">Forecasting</a></li>
                 <li><a class="font-size:1" href="/analysis">Analysis</a></li>
             </ul>
+            <div class="font-size:0" style="margin-left:1000px;"><span th:text="${td.today}">날짜</span> <span>보고</span></div>
         </nav>
     </header>
 
@@ -45,39 +46,55 @@
                     <span class="font-size:6 color:main-1" th:text="${var.variance}">2.76 %</span>
                 </div>
                 <div class="font-size:0 color:base-4 text-align:center">
-                    판매량 증감률
+                    전일 대비 판매 증감률
                 </div>
             </div>
             <div class="card">
                 <div class="result">
-                    <span class="font-size:6 color:base-6 text-align:center" th:text="${cate.category}">특정 카테고리</span>
+                    <span class="font-size:6 color:base-6 text-align:center" th:text="${bc.bestCategory}">특정 카테고리</span>
                 </div>
                 <div class="font-size:0 color:base-4 text-align:center">
-                    최다 판매 식품군
+                    최다 판매 상품군
                 </div>
             </div>
             <div class="card">
                 <div class="result">
-                    <span class="font-size:6 color:base-6 text-align:center" th:text="${prod.product}">특정 식품</span>
+                    <span class="font-size:6 color:base-6 text-align:center" th:text="${wc.worstCategory}">특정 카테고리</span>
                 </div>
                 <div class="font-size:0 color:base-4 text-align:center">
-                    최다 판매 식품
+                    최저 판매 상품군
                 </div>
             </div>
             <div class="card">
                 <div class="result">
-                    <span class="font-size:6 color:base-6 text-align:center" th:text="${mart.mart}">특정 마트</span>
+                    <span class="font-size:6 color:base-6 text-align:center" th:text="${bp.bestProduct}">특정 식품</span>
                 </div>
                 <div class="font-size:0 color:base-4 text-align:center">
-                    최다 실적 지점
+                    최다 판매 상품
                 </div>
             </div>
             <div class="card">
                 <div class="result">
-                    <span class="font-size:6 color:base-6" th:text="${peak.peakTime}">17:00 ~ 18:00</span>
+                    <span class="font-size:6 color:base-6 text-align:center" th:text="${wp.worstProduct}">특정 식품</span>
+                </div>
+                <div class="font-size:0 color:base-4 text-align:center">
+                    최저 판매 상품
+                </div>
+            </div>
+            <div class="card">
+                <div class="result">
+                    <span class="font-size:6 color:base-6" th:text="${p.peakTime}">17:00 ~ 18:00</span>
                 </div>
                 <div class="font-size:0 color:base-4 text-align:center">
                     최다 이용 시간대
+                </div>
+            </div>
+            <div class="card">
+                <div class="result">
+                    <span class="font-size:6 color:base-6" th:text="${op.offPeakTime}">17:00 ~ 18:00</span>
+                </div>
+                <div class="font-size:0 color:base-4 text-align:center">
+                    최저 이용 시간대
                 </div>
             </div>
         </section>
@@ -85,12 +102,12 @@
         <section class="graph-table mb:4">
             <h1 class="d:none">차트 및 테이블 섹션</h1>
             <section class="mart-performance p:3 bg-color:base-0 border-radius:2 box-shadow:0">
-                <h1 class="font-size:4 color:base-6 font-weight:600">지점별 실적</h1>
+                <h1 class="font-size:2 color:base-6 font-weight:600">지점별 실적 순위</h1>
                 <div id="bestmart-chart" class="position:relative w:1 h:1"></div>
             </section>
 
             <section class="sales-product-rank p:3 bg-color:base-0 border-radius:2 box-shadow:0">
-                <h1 class="font-size:4 color:base-6 font-weight:600">식품별 판매량 순위</h1>
+                <h1 class="font-size:2 color:base-6 font-weight:600">상품별 판매량 순위</h1>
                 <table class="overflow:hidden">
                     <thead>
                         <!--<tr class="bg-color:main-1">
@@ -112,7 +129,7 @@
             </section>
 
             <section class="rapid-changing-sales p:3 bg-color:base-0 border-radius:2 box-shadow:0 overflow:hidden">
-                <h1 class="font-size:4 color:base-6 font-weight:600">판매량 급변 식품 순위</h1>
+                <h1 class="font-size:2 color:base-6 font-weight:600">판매량 급변 상품 순위</h1>
                 <table class="overflow:hidden">
                     <thead>
                         <!--<tr class="bg-color:accent-1">
@@ -135,12 +152,12 @@
             </section>
 
             <section class="sales-volume-trend p:3 bg-color:base-0 border-radius:2 box-shadow:0">
-                <h1 class="font-size:4 color:base-6 font-weight:600">판매량 증감 추이</h1>
+                <h1 class="font-size:2 color:base-6 font-weight:600">시간대별 이용 추이</h1>
                 <div id="sales-trend-chart" class="position:relative w:1 h:1"></div>
             </section>
 
             <section class="demand-forecasting p:3 bg-color:base-0 border-radius:2 box-shadow:0">
-                <h1 class="font-size:4 color:base-6 font-weight:600">수요 예측</h1>
+                <h1 class="font-size:2 color:base-6 font-weight:600">수요 예측</h1>
                 <div id="prediction-chart" class="position:relative w:1 h:1"></div>
             </section>
         </section>

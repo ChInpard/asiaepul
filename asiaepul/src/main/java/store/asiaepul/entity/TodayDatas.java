@@ -7,11 +7,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class DataModel {
+public class TodayDatas {
 	
+	private String today;
 	private String variance;
-	private String category;
-	private String product;
-	private String mart;
+	private String bestCategory;
+	private String worstCategory;
+	private String bestProduct;
+	private String worstProduct;
 	private String peakTime;
+	private String offPeakTime;
 }

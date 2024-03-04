@@ -13,7 +13,10 @@ document.addEventListener("DOMContentLoaded", function() {
 		const response = await fetch(url);
 		const chartData = await response.json();
 		console.log(chartData);
-
+		
+		chartData.categories.unshift("9:00");
+		chartData.series.unshift(0);
+		
 	    const option = {
 			color: ['rgba(255, 2, 2, 0.7)'],
 	        tooltip: {
@@ -32,7 +35,10 @@ document.addEventListener("DOMContentLoaded", function() {
 	            data: chartData.categories,
 	            name: "시간대",
 	            nameLocation: 'middle',
-	            nameGap: 40
+	            nameGap: 40,
+	            axisLabel: {
+                    interval: 1, // 모든 라벨을 표시
+                }
 	        },
 	        yAxis: {
 	            type: 'value',

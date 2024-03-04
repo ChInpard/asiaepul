@@ -197,39 +197,35 @@ window.addEventListener("load", function() {
 	    const modelRate = predictionSection.querySelector(".AI-apply dl .rate");
 	    const modelSelectButton = predictionSection.querySelectorAll(".analysis-select .analysis-model");
 	    
-	    let model = analysisData.resultModelOne;
-	    
-        // 모델 이름 설정
-        modelName.innerHTML = Object.keys(analysisData)[0];
-
-        // 모델 개수 설정
-        let modelCountValue = Object.keys(analysisData).length;
-        modelCount.innerHTML = modelCountValue;
-
-        // 예측 정확도 설정
-        let modelRateValue = analysisData.resultModelOne.accuracy;
-        modelRate.innerHTML = `${modelRateValue} %`;
-
-        // 정렬된 모델 리스트 생성
+	    let model = analysisData;
+        /*// 정렬된 모델 리스트 생성
         let sortedModelList = Object.keys(analysisData).sort((a, b) => {
             return analysisData[b].rate - analysisData[a].rate; // 예측 정확도를 기준으로 내림차순 정렬
-        });
+        });*/
 
-        // 해당 모델의 순위 찾기
-        const modelRankValue = sortedModelList.indexOf("resultModelOne") + 1;
-        modelRank.innerHTML = `${modelRankValue}`;
-	    
+        
+	    // 모델 이름
+	    //modelName.innerHTML = Object.keys(model)[0];
+	    // 모델 개수
+	    /*let modelCountValue = Object.keys(model).length;
+	    modelCount.innerHTML = modelCountValue;*/
+	    /*// 모델 순위
+	    //const modelRankValue = sortedModelList.indexOf("resultModelOne") + 1;
+	    modelRank.innerHTML = `1`;
+	    // 예측 정확도
+	    let modelRateValue = analysisData.accuracy;
+	    modelRate.innerHTML = `${modelRateValue} %`;
 	    
 	    let productName = predictionSection.querySelector(".product-prediction .product-name");
-	    productName.innerHTML = model.productName;
+	    productName.innerHTML = model.productName;*/
 	    
-	    let realData = model.actualVolume;
-	    let demandData = model.demandForecast;
+	    let realData = model.realData;
+	    let demandData = model.predicData;
 	    let dates = model.dates;
 	    
 	    drawChart(realData, demandData, dates);
 	    
-	    // 각 모델 선택 버튼에 대한 클릭 이벤트 리스너 추가
+	    /*// 각 모델 선택 버튼에 대한 클릭 이벤트 리스너 추가
 	    modelSelectButton.forEach((button, index) => {
 	        button.addEventListener("click", async () => {
 	            // 모델을 선택된 모델로 설정
@@ -257,7 +253,7 @@ window.addEventListener("load", function() {
 	            
 	            await drawChart(realData, demandData, dates);
 	        });
-	    });
+	    });*/
 		
 	    /** 그래프 */
 	    async function drawChart(realData, demandData, dates) {
@@ -322,7 +318,7 @@ window.addEventListener("load", function() {
 		                }
 		            }
 		        ],
-		        dataZoom: [
+		        /*dataZoom: [
 		            {
 		              type: 'inside',
 		              start: 70,
@@ -332,7 +328,7 @@ window.addEventListener("load", function() {
 		              start: 70,
 		              end: 100
 		            }
-		        ],
+		        ],*/
 		        series: series.map(s => ({
 		            ...s,
 		            tooltip: {
