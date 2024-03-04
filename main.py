@@ -1,3 +1,5 @@
+from ex_quantity import *
+
 import pandas as pd
 import os
 import csv
@@ -33,6 +35,9 @@ class DataProcessor:
         self.today_data = None
         self.yesterday = datetime(2023, 12, 30)
         self.today = datetime(2023, 12, 31)
+
+    def format_date(self, date):
+        return date.strftime("%Y년 %m월 %d일")
 
     async def read_and_merge_data(self):
         if self.total_data is None:
@@ -81,31 +86,46 @@ class DataProcessor:
     def get_max_cate(self, today_data):
         max_cate = today_data.groupby('cate')['tot'].sum().idxmax()
         return max_cate
+    
+    def get_min_cate(self, today_data):
+        min_cate = today_data.groupby('cate')['tot'].sum().idxmin()
+        return min_cate
 
     def get_max_item(self, today_data):
         max_item = today_data.groupby(['cate', 'name'])['tot'].sum().idxmax()[1]
         return max_item
-
-    def get_best_mart(self, today_data):
-        today_data['mart'] = today_data['mart'].astype(str)
-        best_mart = today_data.groupby('mart')['tot'].sum().idxmax()
-        return best_mart
+    
+    def get_min_item(self, today_data):
+        min_item = today_data.groupby(['cate', 'name'])['tot'].sum().idxmin()[1]
+        return min_item
 
     def get_peak_time(self, today_data):
-        # today_data = today_data.copy()  # 데이터 프레임의 복사본 생성
+        today_data = today_data.copy()
         today_data['date'] = pd.to_datetime(today_data['date'])
-        # 'date' 필드를 이용해 각 기록을 30분 단위로 라운딩합니다.
-        today_data['date_bin'] = today_data['date'].dt.floor('30T')
-        # 'date_bin'을 기준으로 그룹화하고, 'tot'의 합계를 계산합니다.
+        today_data['date_bin'] = today_data['date'].dt.floor('1H')
         peak_time_bin = today_data.groupby('date_bin')['tot'].sum().idxmax()
-        # 피크 시간대의 시작 시간을 구합니다.
         start_time = peak_time_bin.strftime('%H:%M')
-        # 피크 시간대의 끝 시간을 구합니다. 피크 시간대는 30분 구간이므로, 시작 시간에 30분을 더합니다.
-        end_time = (peak_time_bin + pd.Timedelta(minutes=30)).strftime('%H:%M')
+        end_time = (peak_time_bin + pd.Timedelta(hours=1)).strftime('%H:%M')
         peak_time = f"{start_time} ~ {end_time}"
         return peak_time
+    
+    def get_off_peak_time(self, today_data):
+        today_data = today_data.copy()
+        today_data['date'] = pd.to_datetime(today_data['date'])
+        today_data['date_bin'] = today_data['date'].dt.floor('1H')
+        off_peak_time_bin = today_data.groupby('date_bin')['tot'].sum().idxmin()
+        start_time = off_peak_time_bin.strftime('%H:%M')
+        end_time = (off_peak_time_bin + pd.Timedelta(hours=1)).strftime('%H:%M')
+        off_peak_time = f"{start_time} ~ {end_time}"
+        return off_peak_time
+
 
 data_processor = DataProcessor()
+
+@app.get("/today-date")
+async def today():
+    today = data_processor.format_date(data_processor.today)
+    return {"today": today}
 
 @app.get("/variance")
 async def variance():
@@ -118,25 +138,37 @@ async def variance():
 async def best_category():
     today_data = await data_processor.extract_today_data()
     result = data_processor.get_max_cate(today_data)
-    return {"category": result}
+    return {"bestCategory": result}
+
+@app.get("/worst-category")
+async def worst_category():
+    today_data = await data_processor.extract_today_data()
+    result = data_processor.get_min_cate(today_data)
+    return {"worstCategory": result}
 
 @app.get("/best-product")
 async def best_product():
     today_data = await data_processor.extract_today_data()
     result = data_processor.get_max_item(today_data)
-    return {"product": result}
+    return {"bestProduct": result}
 
-@app.get("/best-mart")
-async def best_mart():
+@app.get("/worst-product")
+async def best_product():
     today_data = await data_processor.extract_today_data()
-    result = data_processor.get_best_mart(today_data)
-    return {"mart": result}
+    result = data_processor.get_min_item(today_data)
+    return {"worstProduct": result}
 
 @app.get("/peaktime")
 async def peaktime():
     today_data = await data_processor.extract_today_data()
     result = data_processor.get_peak_time(today_data)
     return {"peakTime": result}
+
+@app.get("/off-peaktime")
+async def peaktime():
+    today_data = await data_processor.extract_today_data()
+    result = data_processor.get_off_peak_time(today_data)
+    return {"offPeakTime": result}
 
 
 class MartData(BaseModel):
@@ -146,6 +178,7 @@ class MartData(BaseModel):
 @app.get("/mart-rank", response_model=MartData)
 async def get_mart_ranking():
     today_data = await data_processor.extract_today_data()
+    today_data['mart'] = today_data['mart'].astype(str)
     
     mart_totals = today_data.groupby('mart')['tot'].sum().sort_values(ascending=True)
     top_mart_totals = mart_totals.head(9)
@@ -232,10 +265,22 @@ class SalesData(BaseModel):
 @app.get("/sales-trend", response_model=SalesData)
 async def group_by_date_bin_to_json():
     today_data = await data_processor.extract_today_data()
-    filtered_data = today_data[(today_data['date'].dt.hour >= 9) & (today_data['date'].dt.hour <= 24)]  # 오전 9시 ~ 오후 11시 59분
-    filtered_data['date_bin'] = filtered_data['date'].dt.floor('30T')  # 30분 단위 구간 분할
-    grouped = filtered_data.groupby('date_bin')['tot'].sum().reset_index()  # 시간대별로 그룹화
-    grouped['date_bin'] = grouped['date_bin'].dt.strftime('%H:%M')  # 시간대 표기법 지정
+    
+    # 오전 8시 30분부터 데이터 포함 조건 설정
+    # 'date' 컬럼이 datetime 타입임을 가정하고, 오늘 날짜의 자정으로부터 8시간 30분을 더합니다.
+    start_time = today_data['date'].dt.floor('D') + pd.Timedelta('8 hours 30 minutes')
+    
+    # 필터링 조건을 수정합니다.
+    filtered_data = today_data[(today_data['date'] >= start_time) & (today_data['date'].dt.hour < 24)]
+    
+    # 30분 단위 구간 분할을 위해 ceil 대신 floor를 사용하여 오전 8시 30분에 대한 처리를 포함
+    filtered_data['date_bin'] = filtered_data['date'].dt.ceil('30T')  # 오전 8시 30분부터 30분 간격으로 구간 분할
+    
+    # 시간대별로 그룹화 및 'tot'의 합계 계산
+    grouped = filtered_data.groupby('date_bin')['tot'].sum().reset_index()
+    
+    # 시간대 표기법 지정
+    grouped['date_bin'] = grouped['date_bin'].dt.strftime('%H:%M')
 
     # SalesData 모델에 맞추어 데이터 형식을 변환
     categories = grouped['date_bin'].tolist()
@@ -304,7 +349,7 @@ class Product(BaseModel):
     changeStatus: str
     changeRate: str
     actualVolume: List[int]
-    demandForecast: List[int]
+    demandForecast: List[float]
     accuracy: float
     dates: List[str]
 
@@ -336,18 +381,8 @@ class ProductsCache:
                 accuracy = round(random.uniform(90, 100), 2)
                 
                 dates = []
-                start_date = datetime(2023, 1, 1)
-                end_date = datetime(2023, 12, 31)
-                extended_end_date = end_date + timedelta(days=40)
-
-                date = start_date
-                while date <= extended_end_date:
-                    formatted_date = date.strftime("%y.%m.%d")
-                    dates.append(formatted_date)
-                    date += timedelta(days=1)
-
-                real_data = generate_real_data()
-                predicted_data = generate_predicted_data()
+                real_data = []
+                predicted_data = []
 
                 product = Product(
                     id=product_id,
@@ -423,74 +458,77 @@ async def get_categories(query: str = Query(default="")):
     return sorted_categories
 
 
-class BigDataModel:
-    def __init__(self):
-        self.product_cache = {}
 
-    async def run_analysis(self, productId: int) -> dict:
-        if productId not in self.product_cache:
-            # ProductsCache를 사용하여 제품 정보 가져오기
-            products = await ProductsCache.generate_products()
-        
-            # productId를 사용하여 해당 제품 찾기
-            product = next((p for p in products if p.id == productId), None)
-            accuracy = round(random.uniform(90, 100), 2)
+class AIData(BaseModel):
+    name: str
+    dates: List[str]
+    realData: List[int]
+    predicData: List[float]
 
-            if product:
-                # 제품 정보를 사용하여 분석 실행
-                result = {
-                    "productName": product.name,
-                    "actualVolume": product.actualVolume,
-                    "demandForecast": product.demandForecast,
-                    "accuracy": accuracy,
-                    "dates": product.dates
-                }
-                # 캐시에 저장
-                self.product_cache[productId] = result
-            else:
-                result = {"error": "Product not found"}
-        else:
-            # 캐시에서 결과 반환
-            result = self.product_cache[productId]
-        
-        return result
-    
-    async def calculate_error(self, productId: int) -> dict:
-        if productId not in self.product_cache:
-            # ProductsCache를 사용하여 제품 정보 가져오기
-            products = await ProductsCache.generate_products()
-        
-            # productId를 사용하여 해당 제품 찾기
-            product = next((p for p in products if p.id == productId), None)
-            accuracy = round(random.uniform(90, 100), 2)
+    async def run_LTSF_NLinear(code: int):
+        total_data = data_processor.total_data
 
-            if product:
-                # 제품 정보를 사용하여 분석 실행
-                result = {
-                    "productName": product.name,
-                    "actualVolume": product.actualVolume,
-                    "demandForecast": product.demandForecast,
-                    "accuracy": accuracy,
-                    "dates": product.dates
-                }
-                # 캐시에 저장
-                self.product_cache[productId] = result
-            else:
-                result = {"error": "Product not found"}
-        else:
-            # 캐시에서 결과 반환
-            result = self.product_cache[productId]
+        data = total_data[total_data['code'] == code]
+
+        data['date'] = pd.to_datetime(data['date'])
+        data['date_day'] = data['date'].dt.strftime('%Y-%m-%d')
         
+        data_final = data.groupby(['date_day']).agg({'tot': 'sum'})
+        data_final = data_final.reset_index()
+        data_final.to_csv(f'C:\\Pulmuone Fastapi\\data\\predict\\product_{code}.csv', index=False)
+        
+        raw = pd.read_csv(f'C:\\Pulmuone Fastapi\\data\\predict\\product_{code}.csv', index_col=['date_day'], parse_dates = True)
+        
+        pred = await predict("2023-12-22", raw, "NLinear")
+        print(pred)
+        recent_dates = data_final['date_day'].tail(10).tolist()
+        real_data = data_final['tot'].tail(10).tolist()
+        
+        result = {
+            "name": "LSTF-NLinear",
+            "dates": recent_dates,
+            "realData": real_data,
+            "predicData": pred
+        }
         return result
 
-# BigDataModel 객체 생성
-big_data_model_1 = BigDataModel()
-big_data_model_2 = BigDataModel()
 
-@app.get("/analysis/{productId}")
-async def analyze_data(productId: int):
-    # 두 모델에서 각각 분석 실행
-    result_1 = await big_data_model_1.run_analysis(productId)
-    result_2 = await big_data_model_2.calculate_error(productId)
+@app.get("/analysis/{code}", response_model=AIData)
+async def analyze(code: int):
+    ltsf_N = await AIData.run_LTSF_NLinear(code)
     
-    return {"resultModelOne": result_1, "resultModelTwo": result_2}
+    return ltsf_N
+    
+
+class Data(BaseModel):
+    dates: List[str]
+    realData: List[int]
+    predicData: List[float]
+
+
+@app.get("/anything/{code}", response_model=Data)
+async def any(code: int):
+    category_data = pd.read_csv("data/category.csv")
+    category = category_data.loc[category_data['no'] == code, 'cate'].values[0]
+    
+    total_data = data_processor.total_data
+
+    data = total_data[total_data['cate'] == category]
+    
+    data['date'] = pd.to_datetime(data['date'])
+    data['date_day'] = data['date'].dt.strftime('%Y-%m-%d')
+    data_final = data.groupby(['date_day']).agg({'tot': 'sum'})
+    data_final.to_csv(f'C:\\Pulmuone Fastapi\\data\\predict\\category_{code}.csv')
+    
+    raw = pd.read_csv(f'C:\\Pulmuone Fastapi\\data\\predict\\category_{code}.csv', index_col=['date_day'], parse_dates = True)
+    pred = await predict("2023-12-22", raw, "NLinear")
+
+    recent_dates = raw['date_day'].tail(10).tolist()
+    real_data = raw['tot'].tail(10).tolist()
+    
+    result = {
+        "dates": recent_dates,
+        "realData": real_data,
+        "predicData": pred
+    }
+    return result
