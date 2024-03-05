@@ -55,7 +55,7 @@ window_size, forecast_size = 30*12,10 # 30일 12달 데이터로 30일 예측(�
 
 
 
-async def predict(pred_date, raw, name):
+async def predict_ltsf(pred_date, raw, name):
     datetime_pred = datetime.strptime(pred_date, datetime_format)
     ''' 1. preprocess raw data '''
     date, data=split_data(raw,0,index=True) 

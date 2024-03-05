@@ -1,5 +1,8 @@
 from ex_quantity import *
+from lstm_quantity import *
 
+import json
+import numpy as np
 import pandas as pd
 import os
 import csv
@@ -15,7 +18,6 @@ import random
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000",
     "http://localhost:8080"
 ]
 
@@ -288,62 +290,36 @@ async def group_by_date_bin_to_json():
 
     return {"categories": categories, "series": series}
 
-class PredictData(BaseModel):
+
+class ProductData(BaseModel):
     categories: List[str]
-    series: List[Dict[str, List[int]]]
+    series: List[int]
 
-@app.get("/prediction", response_model=PredictData)
-async def get_sales_trend_chart_data():
-    dates = []
+@app.get("/product-all", response_model=ProductData)
+async def get_sales_per_product():
+    today_data = await data_processor.extract_today_data()
+    # cate와 name을 기준으로 그룹화하여 각 name값과 tot의 합계를 계산합니다.
+    today_totals = today_data.groupby(['cate', 'name'])['tot'].sum()
+
+    # name과 tot를 담을 리스트 초기화
+    name_list = []
+    tot_list = []
+
+    # 그룹화된 데이터를 순회하면서 name과 tot를 리스트에 추가합니다.
+    for (cate, name), tot in today_totals.items():
+        name_list.append(name)
+        tot_list.append(tot)
     
-    start_date = datetime(2023, 1, 1)
-    end_date = datetime(2023, 12, 31)
-
-    extended_end_date = end_date + timedelta(days=40)
-
-    date = start_date
-    while date <= extended_end_date:
-        year = str(date.year)[-2:]
-        month = str(date.month).zfill(2)
-        day = str(date.day).zfill(2)
-
-        formatted_date = f"{year}.{month}.{day}"
-        dates.append(formatted_date)
-
-        date += timedelta(days=1)
-
-    real_data = generate_real_data()
-    predicted_data = generate_predicted_data()
-
-    return PredictData(categories=dates, series=[
-        {'realData': real_data},
-        {'predictedData': predicted_data}
-    ])
+    # 결과를 JSON 형식으로 변환하여 반환합니다.
+    result = {
+        "categories": name_list,
+        "series": tot_list
+    }
+    return result
 
 
-# 1년치의 더미 데이터를 생성하는 함수입니다.
-def generate_real_data():
-    data = []
-    for i in range(365):
-        # 수치를 엇비슷하게 만들기 위해 무작위 값을 사용합니다.
-        random_value = random.randint(80, 250)
-        data.append(random_value)
-
-    return data
-
-def generate_predicted_data():
-    data = []
-    for i in range(365 + 30):
-        # 수치를 엇비슷하게 만들기 위해 무작위 값을 사용합니다.
-        random_value = random.randint(80, 250)
-        data.append(random_value)
-
-    return data
-
-
-class Product(BaseModel):
+class Category(BaseModel):
     id: int
-    category: str
     name: str
     demandPrediction: int
     changeStatus: str
@@ -353,26 +329,26 @@ class Product(BaseModel):
     accuracy: float
     dates: List[str]
 
-class ProductsCache:
-    _products = None
+class CategoriesCache:
+    _categories = None
 
     @classmethod
-    async def generate_products(cls, query: str = "") -> List[Product]:
-        if cls._products is None:
-            cls._products = await cls._generate_products(query)
-        return cls._products
+    async def generate_categories(cls, query: str = "") -> List[Category]:
+        if cls._categories is None:
+            cls._categories = await cls._generate_products(query)
+        return cls._categories
 
     @classmethod
-    async def _generate_products(cls, query: str = "") -> List[Product]:
+    async def _generate_products(cls, query: str = "") -> List[Category]:
         products = []
 
         # CSV 파일에서 제품 정보 가져오기
-        with open('data/product.csv', newline='') as csvfile:
+        with open('data/category.csv', newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 product_id = int(row['id'])
                 name = row['name']
-                category = row['cate']
+                # category = row['cate']
                 
                 # 임의의 데이터 생성
                 demand_prediction = random.randint(1000, 30000)
@@ -380,13 +356,14 @@ class ProductsCache:
                 change_rate = str(abs(round(random.uniform(-10, 10), 2)))
                 accuracy = round(random.uniform(90, 100), 2)
                 
+            
+
                 dates = []
                 real_data = []
                 predicted_data = []
 
-                product = Product(
+                category = Category(
                     id=product_id,
-                    category=category,
                     name=name,
                     demandPrediction=demand_prediction,
                     changeStatus=change_status,
@@ -398,32 +375,17 @@ class ProductsCache:
                 )
 
                 # 쿼리에 해당하는 제품만 필터링
-                if query and query.lower() not in product.name.lower():
+                if query and query.lower() not in category.name.lower():
                     continue
 
-                products.append(product)
+                products.append(category)
 
         return products
 
-def generate_real_data():
-    data = []
-    for i in range(365):
-        random_value = random.randint(80, 250)
-        data.append(random_value)
-
-    return data
-
-def generate_predicted_data():
-    data = []
-    for i in range(365 + 30):
-        random_value = random.randint(80, 250)
-        data.append(random_value)
-
-    return data
 
 @app.get("/products")
 async def get_products(query: str = Query(default=""), category: str = Query(default="")):
-    products = await ProductsCache.generate_products(query)
+    products = await CategoriesCache.generate_categories(query)
 
     # 쿼리가 비어있지 않은 경우 제품 필터링
     if query:
@@ -460,75 +422,74 @@ async def get_categories(query: str = Query(default="")):
 
 
 class AIData(BaseModel):
-    name: str
+    category: str
     dates: List[str]
     realData: List[int]
     predicData: List[float]
+    modelName: str
+    mae: float
 
     async def run_LTSF_NLinear(code: int):
+        category_data = pd.read_csv("data/category.csv")
+        category = category_data.loc[category_data['id'] == code, 'name'].values[0]
+        
         total_data = data_processor.total_data
 
-        data = total_data[total_data['code'] == code]
-
+        data = total_data[total_data['cate'] == category]
         data['date'] = pd.to_datetime(data['date'])
         data['date_day'] = data['date'].dt.strftime('%Y-%m-%d')
-        
         data_final = data.groupby(['date_day']).agg({'tot': 'sum'})
-        data_final = data_final.reset_index()
-        data_final.to_csv(f'C:\\Pulmuone Fastapi\\data\\predict\\product_{code}.csv', index=False)
+        data_final.to_csv(f'C:\\Pulmuone Fastapi\\data\\predict\\category_{code}.csv')
         
-        raw = pd.read_csv(f'C:\\Pulmuone Fastapi\\data\\predict\\product_{code}.csv', index_col=['date_day'], parse_dates = True)
-        
-        pred = await predict("2023-12-22", raw, "NLinear")
-        print(pred)
-        recent_dates = data_final['date_day'].tail(10).tolist()
+        raw = pd.read_csv(f'C:\\Pulmuone Fastapi\\data\\predict\\category_{code}.csv', index_col=['date_day'], parse_dates = True)
+        pred = await predict_ltsf("2023-12-22", raw, "NLinear")
+
+        recent_dates = data_final.tail(10).index.tolist()
         real_data = data_final['tot'].tail(10).tolist()
-        
+        mae = np.mean(np.abs(np.array(real_data) - np.array(pred)))
+
         result = {
-            "name": "LSTF-NLinear",
+            "category": category,
             "dates": recent_dates,
             "realData": real_data,
-            "predicData": pred
+            "predicData": pred,
+            "modelName": "LTSF-NLinear",
+            "mae": mae
         }
         return result
 
+    async def run_LSTM(code: int):
+        category_data = pd.read_csv("data/category.csv")
+        category = category_data.loc[category_data['id'] == code, 'name'].values[0]
+        
+        total_data = data_processor.total_data
 
-@app.get("/analysis/{code}", response_model=AIData)
+        data = total_data[total_data['cate'] == category]
+        data['date'] = pd.to_datetime(data['date'])
+        data['date_day'] = data['date'].dt.strftime('%Y-%m-%d')
+        data_final = data.groupby(['date_day']).agg({'tot': 'sum'})
+        data_final.to_csv(f'C:\\Pulmuone Fastapi\\data\\predict\\category_{code}.csv')
+        
+        raw = pd.read_csv(f'C:\\Pulmuone Fastapi\\data\\predict\\category_{code}.csv', index_col=['date_day'], parse_dates = True)
+        raw['y'] = raw['tot']
+
+        recent_dates = data_final.tail(10).index.tolist()
+        real_data = data_final['tot'].tail(10).tolist()
+        pred = LSTM_pred("2023-12-22", raw)
+        mae = np.mean(np.abs(np.array(real_data) - np.array(pred)))
+
+        result = {
+                "category": category,
+                "dates": recent_dates,
+                "realData": real_data,
+                "predicData": pred,
+                "modelName": "LSTM",
+                "mae": mae
+            }
+        return result
+    
+@app.get("/analysis/{code}", response_model=List[AIData])
 async def analyze(code: int):
-    ltsf_N = await AIData.run_LTSF_NLinear(code)
-    
-    return ltsf_N
-    
-
-class Data(BaseModel):
-    dates: List[str]
-    realData: List[int]
-    predicData: List[float]
-
-
-@app.get("/anything/{code}", response_model=Data)
-async def any(code: int):
-    category_data = pd.read_csv("data/category.csv")
-    category = category_data.loc[category_data['no'] == code, 'cate'].values[0]
-    
-    total_data = data_processor.total_data
-
-    data = total_data[total_data['cate'] == category]
-    
-    data['date'] = pd.to_datetime(data['date'])
-    data['date_day'] = data['date'].dt.strftime('%Y-%m-%d')
-    data_final = data.groupby(['date_day']).agg({'tot': 'sum'})
-    data_final.to_csv(f'C:\\Pulmuone Fastapi\\data\\predict\\category_{code}.csv')
-    
-    raw = pd.read_csv(f'C:\\Pulmuone Fastapi\\data\\predict\\category_{code}.csv', index_col=['date_day'], parse_dates = True)
-    pred = await predict("2023-12-22", raw, "NLinear")
-
-    recent_dates = raw['date_day'].tail(10).tolist()
-    real_data = raw['tot'].tail(10).tolist()
-    
-    result = {
-        "dates": recent_dates,
-        "realData": real_data,
-        "predicData": pred
-    }
-    return result
+    ltsf = await AIData.run_LTSF_NLinear(code)
+    lstm = await AIData.run_LSTM(code)
+    return [ltsf, lstm]
