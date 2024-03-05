@@ -186,74 +186,55 @@ window.addEventListener("load", function() {
     
     
     async function getAnalysisData(productId) {
-		const url = `http://localhost:8000/analysis/${productId}`;
+		let url = `http://localhost:8000/analysis/${productId}`;
 		const response = await fetch(url);
 	    const analysisData = await response.json();
 	    console.log(analysisData);
 	    
-	    const modelName = predictionSection.querySelector(".AI-apply dl .model-name");
-	    const modelRank = predictionSection.querySelector(".AI-apply dl .rank");
-	    const modelCount = predictionSection.querySelector(".AI-apply dl .model-count");
-	    const modelRate = predictionSection.querySelector(".AI-apply dl .rate");
-	    const modelSelectButton = predictionSection.querySelectorAll(".analysis-select .analysis-model");
+	    let modelName = predictionSection.querySelector(".AI-apply dl .model-name");
+	    let modelRank = predictionSection.querySelector(".AI-apply dl .rank");
+	    let modelMAE = predictionSection.querySelector(".AI-apply dl .rate");
+	    let modelSelectButton = predictionSection.querySelectorAll(".analysis-select .analysis-model");
 	    
 	    let model = analysisData;
-        /*// 정렬된 모델 리스트 생성
-        let sortedModelList = Object.keys(analysisData).sort((a, b) => {
-            return analysisData[b].rate - analysisData[a].rate; // 예측 정확도를 기준으로 내림차순 정렬
-        });*/
-
-        
+    
 	    // 모델 이름
-	    //modelName.innerHTML = Object.keys(model)[0];
-	    // 모델 개수
-	    /*let modelCountValue = Object.keys(model).length;
-	    modelCount.innerHTML = modelCountValue;*/
+	    modelName.innerHTML = model[0].modelName;
 	    /*// 모델 순위
-	    //const modelRankValue = sortedModelList.indexOf("resultModelOne") + 1;
-	    modelRank.innerHTML = `1`;
+	    modelRank.innerHTML = modelRankValue;*/
 	    // 예측 정확도
-	    let modelRateValue = analysisData.accuracy;
-	    modelRate.innerHTML = `${modelRateValue} %`;
+	    modelMAE.innerHTML = model[0].mae;
 	    
 	    let productName = predictionSection.querySelector(".product-prediction .product-name");
-	    productName.innerHTML = model.productName;*/
+	    productName.innerHTML = model[0].category;
 	    
-	    let realData = model.realData;
-	    let demandData = model.predicData;
-	    let dates = model.dates;
+	    let realData = model[0].realData;
+	    let demandData = model[0].predicData;
+	    let dates = model[0].dates;
 	    
 	    drawChart(realData, demandData, dates);
 	    
-	    /*// 각 모델 선택 버튼에 대한 클릭 이벤트 리스너 추가
-	    modelSelectButton.forEach((button, index) => {
-	        button.addEventListener("click", async () => {
-	            // 모델을 선택된 모델로 설정
-		        const selectedModel = index === 0 ? Object.keys(analysisData)[0] : Object.keys(analysisData)[1];
+	    // 각 모델 선택 버튼에 대한 클릭 이벤트 리스너 추가
+		modelSelectButton.forEach((button, index) => {
+		    button.addEventListener("click", async () => {
+		        // 모델을 선택된 모델로 설정
+		        const selectedModel = index + 1;
+		        // 선택된 모델 데이터로 설정
+		        model = analysisData[selectedModel - 1];
+        	
+		        // UI 업데이트
+		        modelName.innerHTML = model.modelName;
+		        /*modelRank.innerHTML = modelRankValue;*/
+		        modelMAE.innerHTML = model.mae;
 		        
-		        // 모델 이름 설정
-		        modelName.innerHTML = selectedModel;
+		        // 새로운 모델 데이터로 차트 다시 그리기
+		        const newRealData = model.realData;
+		        const newDemandData = model.predicData;
+		        const newDates = model.dates;
 		        
-		        // 예측 정확도 설정
-		        const modelRateValue = analysisData[selectedModel].accuracy;
-		        modelRate.innerHTML = `${modelRateValue} %`;
-		        
-		        // 정렬된 모델 리스트 생성
-		        let sortedModelList = Object.keys(analysisData).sort((a, b) => analysisData[b].rate - analysisData[a].rate); // 예측 정확도를 기준으로 내림차순 정렬
-		        
-		        // 해당 모델의 순위 찾기
-		        const modelRankValue = sortedModelList.indexOf(selectedModel) + 1;
-		        modelRank.innerHTML = `${modelRankValue}`;
-	            
-	            
-	            // 새로운 모델 데이터로 차트 다시 그리기
-	            realData = model.actualVolume;
-	            demandData = model.demandForecast;
-	            dates = model.dates;
-	            
-	            await drawChart(realData, demandData, dates);
-	        });
-	    });*/
+		        drawChart(newRealData, newDemandData, newDates);
+		    });
+		});
 		
 	    /** 그래프 */
 	    async function drawChart(realData, demandData, dates) {
@@ -291,9 +272,6 @@ window.addEventListener("load", function() {
 		        },
 		        toolbox: {
 		            feature: {
-		                dataView: { show: true, readOnly: true },
-		                magicType: { show: true, type: ['line', 'bar'] },
-		                restore: { show: true },
 		                saveAsImage: { show: true }
 		            }
 		        },

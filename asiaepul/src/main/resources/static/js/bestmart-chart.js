@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         formatter: function(params) {
                             let percent = ((params.data.value / totalSales) * 100).toFixed(2); // 해당 막대가 전체의 몇 퍼센트를 차지하는지 계산
                             return params.data.value + 
-                            	'                   (' + percent + '%)'; // 해당 막대의 판매량과 비율을 표시
+                            	'               (' + percent + '%)'; // 해당 막대의 판매량과 비율을 표시
                         },
                         textStyle: {
                             color: '#ffffff'

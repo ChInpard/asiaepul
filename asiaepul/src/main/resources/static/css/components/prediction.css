@@ -147,7 +147,7 @@
         dl {
             display: grid;
             align-items: center;
-            grid-template-columns: 0.5fr 1fr;
+            grid-template-columns: 0.7fr 0.8fr;
             grid-template-rows: 25px 25px 25px;
             gap: 30px;
 
