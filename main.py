@@ -195,7 +195,7 @@ async def get_mart_ranking():
 
     return MartData(categories=categories, series=series)
 
-@app.get("/sales-volume")
+@app.get("/sales-volume-top")
 async def sales_volume():
     today_data = await data_processor.extract_today_data()
 
@@ -219,7 +219,31 @@ async def sales_volume():
     
     return sales_volume_data
 
-@app.get("/rapid-change")
+@app.get("/sales-volume-bottom")
+async def sales_volume():
+    today_data = await data_processor.extract_today_data()
+
+    # today_data에서 code별 tot의 합계를 구하고 상위 5개를 선택합니다.
+    top_codes_today = today_data.groupby('code')['tot'].sum().nsmallest(5)
+    
+    sales_volume_data = []
+    for rank, (code, today_tot) in enumerate(top_codes_today.items(), start=1):
+        # 증감률 대신에 today_data에서 각 code의 tot의 합계 값을 입력합니다.
+        # change_rate = abs(change_rate)  # 절대값으로 변환
+
+        # 결과를 딕셔너리에 저장
+        sales_bottom5 = {
+            "rank": rank,
+            "category": today_data.loc[today_data['code'] == code, 'cate'].iloc[0],
+            "product": today_data.loc[today_data['code'] == code, 'name'].iloc[0],
+            "amount": today_tot,  # 증감률 대신에 각 code의 tot의 합계 값을 입력합니다.
+            # "change_rate": f"{symbol} {change_rate}%"  # 부호와 함께 증감률을 문자열 형식으로 저장
+        }
+        sales_volume_data.append(sales_bottom5)
+    
+    return sales_volume_data
+
+@app.get("/rapid-increase")
 async def get_top_changes():
     today_data = await data_processor.extract_today_data()
     yesterday_data = await data_processor.extract_yesterday_data()
@@ -259,6 +283,43 @@ async def get_top_changes():
         }
         result.append(entry)
     return result
+
+@app.get("/rapid-decrease")
+async def get_bottom_changes():
+    today_data = await data_processor.extract_today_data()
+    yesterday_data = await data_processor.extract_yesterday_data()
+
+    today_totals = today_data.groupby('code')['tot'].sum()
+    yesterday_totals = yesterday_data.groupby('code')['tot'].sum().loc[lambda x: x >= 16]
+    changes = ((today_totals - yesterday_totals) / yesterday_totals) * 100
+    bottom_changes = changes.nsmallest(5)
+
+    result = []
+    for rank, (code, change) in enumerate(bottom_changes.items(), start=1):
+        # 해당 코드의 정보를 추출합니다.
+        category = today_data.loc[today_data['code'] == code, 'cate'].iloc[0]
+        product = today_data.loc[today_data['code'] == code, 'name'].iloc[0]
+
+        # 해당 코드의 어제 총계를 추출합니다.
+        yesterday_total = int(yesterday_totals.get(code, 0))  # yesterday_totals에서 값을 가져오고, 없으면 0
+        today_total = int(today_totals.get(code, 0))  # today_totals 값을 가져오고, 없으면 0
+
+        # 부호를 결정합니다.
+        symbol = '▲' if change > 0 else '▼'  # 양수이면 ▲, 음수이면 ▼
+
+        # 결과를 딕셔너리로 구성합니다.
+        entry = {
+            "rank": rank,                              
+            "category": category,                       
+            "product": product,                         
+            "yesterdayTotal": yesterday_total,         
+            "todayTotal" : today_total,
+            "status": f"{symbol}",               
+            "changeRate": f"{abs(change):.2f}%"  
+        }
+        result.append(entry)
+    return result
+
 
 class SalesData(BaseModel):
     categories: List[str]
@@ -321,12 +382,8 @@ async def get_sales_per_product():
 class Category(BaseModel):
     id: int
     name: str
-    demandPrediction: int
-    changeStatus: str
-    changeRate: str
     actualVolume: List[int]
     demandForecast: List[float]
-    accuracy: float
     dates: List[str]
 
 class CategoriesCache:
@@ -350,14 +407,6 @@ class CategoriesCache:
                 name = row['name']
                 # category = row['cate']
                 
-                # 임의의 데이터 생성
-                demand_prediction = random.randint(1000, 30000)
-                change_status = "▲" if random.random() > 0.5 else "▼"
-                change_rate = str(abs(round(random.uniform(-10, 10), 2)))
-                accuracy = round(random.uniform(90, 100), 2)
-                
-            
-
                 dates = []
                 real_data = []
                 predicted_data = []
@@ -365,12 +414,8 @@ class CategoriesCache:
                 category = Category(
                     id=product_id,
                     name=name,
-                    demandPrediction=demand_prediction,
-                    changeStatus=change_status,
-                    changeRate=change_rate,
                     actualVolume=real_data,
                     demandForecast=predicted_data,
-                    accuracy=accuracy,
                     dates=dates
                 )
 
@@ -425,9 +470,11 @@ class AIData(BaseModel):
     category: str
     dates: List[str]
     realData: List[int]
-    predicData: List[float]
+    predicData: List[int]
     modelName: str
     mae: float
+    rmse: float
+    mape: float
 
     async def run_LTSF_NLinear(code: int):
         category_data = pd.read_csv("data/category.csv")
@@ -446,7 +493,15 @@ class AIData(BaseModel):
 
         recent_dates = data_final.tail(10).index.tolist()
         real_data = data_final['tot'].tail(10).tolist()
-        mae = np.mean(np.abs(np.array(real_data) - np.array(pred)))
+        pred = pred.tolist()
+        
+        mae = round(np.mean(np.abs(np.array(real_data) - np.array(pred))), 2)
+        rmse = round(np.sqrt(np.mean((np.array(real_data) - np.array(pred)) ** 2)), 2)
+        mape = round(np.mean(np.abs((np.array(real_data) - np.array(pred)) / np.array(real_data))) * 100, 2)
+        print("readData: ", type(real_data))
+        print("predicData: ", type(pred))
+        print("mape: ", type(mape))
+        pred = np.round(pred).astype(int)
 
         result = {
             "category": category,
@@ -454,7 +509,9 @@ class AIData(BaseModel):
             "realData": real_data,
             "predicData": pred,
             "modelName": "LTSF-NLinear",
-            "mae": mae
+            "mae": mae,
+            "rmse": rmse,
+            "mape": mape
         }
         return result
 
@@ -476,7 +533,12 @@ class AIData(BaseModel):
         recent_dates = data_final.tail(10).index.tolist()
         real_data = data_final['tot'].tail(10).tolist()
         pred = LSTM_pred("2023-12-22", raw)
-        mae = np.mean(np.abs(np.array(real_data) - np.array(pred)))
+        
+        mae = round(np.mean(np.abs(np.array(real_data) - np.array(pred))), 2)
+        rmse = round(np.sqrt(np.mean((np.array(real_data) - np.array(pred)) ** 2)), 2)
+        mape = round(np.mean(np.abs((np.array(real_data) - np.array(pred)) / np.array(real_data))) * 100, 2)
+
+        pred = np.round(pred).astype(int)
 
         result = {
                 "category": category,
@@ -484,7 +546,9 @@ class AIData(BaseModel):
                 "realData": real_data,
                 "predicData": pred,
                 "modelName": "LSTM",
-                "mae": mae
+                "mae": mae,
+                "rmse": rmse,
+                "mape": mape
             }
         return result
     
