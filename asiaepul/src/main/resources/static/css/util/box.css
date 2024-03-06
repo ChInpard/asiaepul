@@ -35,7 +35,7 @@ margin
 
 .w\:0    {width: 0% !important;}
 .w\:8\%	   {width: 8% !important;}
-.w\:10\%   {width: 15% !important;}
+.w\:10\%   {width: 10% !important;}
 .w\:25\%   {width: 25% !important;}
 .w\:35\%   {width: 35% !important;}
 .w\:50\%   {width: 50% !important;}
@@ -49,7 +49,8 @@ margin
 .w\:1v { width: 100vw !important; }
 .w\:auto {width: auto !important;} 
 .w\:inherit {width: inherit !important;} 
-.w\:initial {width: initial !important;} 
+.w\:initial {width: initial !important;}
+.w\:80px {width: 80px !important;} 
 .w\:166px {width: 166px !important;} 
 .w\:312 {width: 312px !important;} 
 .w\:361 {width: 361px !important;} 

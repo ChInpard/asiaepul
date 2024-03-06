@@ -9,13 +9,11 @@ window.addEventListener("load", function() {
 	const categoryButton = predictionSection.querySelector(".icon-category");
 	
 	const nameSortButton = productList.querySelector(".product-name .icon-filter");
-	const demandSortButton = productList.querySelector(".demand .icon-filter");
-	const varianceSortButton = productList.querySelector(".variance .icon-filter");
 	
 	categoryButton.addEventListener("click", async() => {
 	    
 	    const popupContainer = document.querySelector(".popup-container");
-	    const searchText = popupContainer.querySelector(".popup .search-text");
+	    //const searchText = popupContainer.querySelector(".popup .search-text");
 	    const categoryList = popupContainer.querySelector(".popup .popup-contents");
 	    
 	    // 팝업 컨테이너를 보이도록 설정
@@ -25,7 +23,7 @@ window.addEventListener("load", function() {
 	    await searchCategories();
 	   	
 		/** 카테고리 검색 조회 로직 */
-		const categorySearchInput = popupContainer.querySelector(".popup .search-input");
+		/*const categorySearchInput = popupContainer.querySelector(".popup .search-input");
 		categorySearchInput.addEventListener("click", async() => {
 		    await searchCategories();
 		});
@@ -34,12 +32,12 @@ window.addEventListener("load", function() {
 		    if (e.key === 'Enter') {
 		        await searchCategories();
 		    }
-		});
+		});*/
 		
 		async function searchCategories() {
-		    const query = searchText.value.trim();
+		    //const query = searchText.value.trim();
 		    
-		    const url = `http://localhost:8000/categories?query=${query}`;
+		    const url = `http://localhost:8000/products?query=`;
 		    const response = await fetch(url);
 		    const categoriesData = await response.json();
 		    console.log(categoriesData);
@@ -47,7 +45,10 @@ window.addEventListener("load", function() {
 		    categoryList.innerHTML = "";
 			for (let category of categoriesData) {
 				let template = `
-					<div class="content">${category}</div>
+					<div class="content">
+						<input type="hidden" value="${category.id}">
+						${category.name}
+					</div>
 				`;
 				categoryList.insertAdjacentHTML("beforeend", template);
 			}
@@ -56,15 +57,34 @@ window.addEventListener("load", function() {
 			categories.forEach(category => {
 			    category.addEventListener("click", async() => {
 			        const clickedCategory = category.textContent;
+			        const clickedCategoryId = category.querySelector('input').value;
 			        console.log(clickedCategory);
+			        console.log(clickedCategoryId);
 			        
-			        searchText.value = ""; // 검색 텍스트 초기화
+			        //searchText.value = ""; // 검색 텍스트 초기화
 				    categoryList.innerHTML = ""; // 카테고리 목록 초기화
 				    
 				    // 팝업 컨테이너를 숨김 상태로 변경
 				    popupContainer.style.display = 'none';
 			        
-					await searchProducts(clickedCategory);
+			        // 오버레이 추가: 로딩 중 메시지 표시
+	                const loadingOverlay = document.querySelector(".product-prediction .loading-overlay");
+	                loadingOverlay.classList.add("active");
+	                
+					productListSection.innerHTML = "";
+					let template = `
+		                <div class="product d:flex align-items:center clicked">
+		                	<input type="hidden" value="${clickedCategoryId}">
+		                    <div class="product-name color:base-5">${clickedCategory}</div>
+		        		</div>
+				    `;
+				    productListSection.insertAdjacentHTML("beforeend", template);
+				    
+					await getAnalysisData(clickedCategoryId);
+					changeStatus(categories);
+					
+					// 오버레이 제거: 로딩 완료
+	                loadingOverlay.classList.remove("active");
 			    });
 			});
             
@@ -77,9 +97,9 @@ window.addEventListener("load", function() {
 	popupCloseButton.addEventListener("click", function() {
 	    const popupContainer = document.querySelector(".popup-container");
 	    const categoryList = popupContainer.querySelector(".popup .popup-contents");
-	    const searchText = popupContainer.querySelector(".popup .search-text");
+	    /*const searchText = popupContainer.querySelector(".popup .search-text");
 	    
-	    searchText.value = ""; // 검색 텍스트 초기화
+	    searchText.value = ""; // 검색 텍스트 초기화*/
 	    categoryList.innerHTML = ""; // 카테고리 목록 초기화
 	    
 	    // 팝업 컨테이너를 숨김 상태로 변경
@@ -102,7 +122,7 @@ window.addEventListener("load", function() {
 		let url = ``;
 		
 	    if (category) {
-			url = `http://localhost:8000/products?category=${category}`;
+			url = `http://localhost:8000/products?query=${category}`;
 	    } else {
 			url = `http://localhost:8000/products?query=${query}`;
 		}
@@ -112,21 +132,10 @@ window.addEventListener("load", function() {
 		
 		productListSection.innerHTML = "";
 		for (let m of productsData) {
-			let statusColor = m.changeStatus === "▲" ? "main-1" : "main-2";
-			let plusOrMinus = m.changeStatus === "▲" ? "+" : "-";
-			
-			// 숫자를 콤마 단위로 포맷
-    		let formattedDemandPrediction = m.demandPrediction.toLocaleString();
-    
 			let template = `
                 <div class="product d:flex align-items:center">
                 	<input type="hidden" value="${m.id}">
                     <div class="product-name color:base-5">${m.name}</div>
-	                <div class="demand color:base-5 text-align:center">${formattedDemandPrediction}</div>
-                    <div class="variance d:flex flex:col justify-content:center align-items:center">
-                        <span class="h:25px font-size:3 color:${statusColor}">${m.changeStatus}</span>
-                        <span class="h:25px font-size:0 color:base-5"><span>${plusOrMinus}</span><span class="abs">${m.changeRate}</span>%</span>
-                    </div>
         		</div>
 		    `;
 			productListSection.insertAdjacentHTML("beforeend", template);
@@ -191,19 +200,36 @@ window.addEventListener("load", function() {
 	    const analysisData = await response.json();
 	    console.log(analysisData);
 	    
+	    
 	    let modelName = predictionSection.querySelector(".AI-apply dl .model-name");
-	    let modelRank = predictionSection.querySelector(".AI-apply dl .rank");
-	    let modelMAE = predictionSection.querySelector(".AI-apply dl .rate");
+	    let sumReal = predictionSection.querySelector(".AI-apply dl .real");
+	    let sumPred = predictionSection.querySelector(".AI-apply dl .pred");
+	   	
+	    let mae = predictionSection.querySelector(".AI-figure dl .mae");
+	    let rmse = predictionSection.querySelector(".AI-figure dl .rmsd");
+	    let mape = predictionSection.querySelector(".AI-figure dl .mape");
 	    let modelSelectButton = predictionSection.querySelectorAll(".analysis-select .analysis-model");
 	    
 	    let model = analysisData;
-    
-	    // 모델 이름
-	    modelName.innerHTML = model[0].modelName;
-	    /*// 모델 순위
-	    modelRank.innerHTML = modelRankValue;*/
-	    // 예측 정확도
-	    modelMAE.innerHTML = model[0].mae;
+	    
+	    let totalReal = 0;
+	    for (let i = 0; i < model[0].realData.length; i++) {
+		    totalReal += model[0].realData[i];
+		}
+		
+		let totalPred = 0;
+	    for (let i = 0; i < model[0].predicData.length; i++) {
+		    totalPred += model[0].predicData[i];
+		}
+    	
+    	modelName.innerHTML = model[0].modelName;
+    	sumReal.innerHTML = totalReal;
+    	sumPred.innerHTML = totalPred;
+    	
+    	mae.innerHTML = model[0].mae;
+    	rmse.innerHTML = model[0].rmse;
+    	mape.innerHTML = model[0].mape;
+	    
 	    
 	    let productName = predictionSection.querySelector(".product-prediction .product-name");
 	    productName.innerHTML = model[0].category;
@@ -212,7 +238,45 @@ window.addEventListener("load", function() {
 	    let demandData = model[0].predicData;
 	    let dates = model[0].dates;
 	    
-	    drawChart(realData, demandData, dates);
+	    //let standardY = totalReal > totalPred ? totalReal : totalPred;
+	    let standardY = (totalReal + totalPred) / 2;
+	    console.log(standardY);
+	    let graphFrame = 0;
+		if (standardY < 300) {
+			graphFrame = 50;
+	    } else if (standardY < 350) {
+			graphFrame = 80;
+		} else if (standardY < 400) {
+			graphFrame = 100;
+		} else if (standardY < 500) {
+			graphFrame = 150;
+		} else if (standardY < 1000) {
+			graphFrame = 200;
+		} else if (standardY < 2000) {
+			graphFrame = 400;
+		} else if (standardY < 2500) {
+			graphFrame = 500;
+		} else if (standardY < 3500) {
+			graphFrame = 700;
+		} else if (standardY < 4000) {
+			graphFrame = 800;
+		} else if (standardY < 5000) {
+			graphFrame = 1000;
+		} else if (standardY < 6000) {
+			graphFrame = 1200;
+		} else if (standardY < 10000) {
+			graphFrame = 1500;
+		} else if (standardY < 15000) {
+			graphFrame = 2000;
+		} else if (standardY < 20000) {
+			graphFrame = 3000;
+		} else if (standardY < 30000) {
+			graphFrame = 5000;
+		} else if (standardY < 60000) {
+			graphFrame = 10000;
+		}
+	    
+	    drawChart(realData, demandData, dates, graphFrame);
 	    
 	    // 각 모델 선택 버튼에 대한 클릭 이벤트 리스너 추가
 		modelSelectButton.forEach((button, index) => {
@@ -221,30 +285,47 @@ window.addEventListener("load", function() {
 		        const selectedModel = index + 1;
 		        // 선택된 모델 데이터로 설정
 		        model = analysisData[selectedModel - 1];
-        	
-		        // UI 업데이트
-		        modelName.innerHTML = model.modelName;
-		        /*modelRank.innerHTML = modelRankValue;*/
-		        modelMAE.innerHTML = model.mae;
+		        
+		        let totalReal = 0;
+			    for (let i = 0; i < model.realData.length; i++) {
+				    totalReal += model.realData[i];
+				}
+				
+				let totalPred = 0;
+			    for (let i = 0; i < model.predicData.length; i++) {
+				    totalPred += model.predicData[i];
+				}
+		    	
+		    	modelName.innerHTML = model.modelName;
+		    	sumReal.innerHTML = totalReal;
+		    	sumPred.innerHTML = totalPred;
+    	
+		        mae.innerHTML = model.mae;
+		    	rmse.innerHTML = model.rmse;
+		    	mape.innerHTML = model.mape;
 		        
 		        // 새로운 모델 데이터로 차트 다시 그리기
 		        const newRealData = model.realData;
 		        const newDemandData = model.predicData;
 		        const newDates = model.dates;
 		        
-		        drawChart(newRealData, newDemandData, newDates);
+		        drawChart(newRealData, newDemandData, newDates, graphFrame);
 		    });
 		});
 		
 	    /** 그래프 */
-	    async function drawChart(realData, demandData, dates) {
+	    async function drawChart(realData, demandData, dates, graphFrame) {
 		    const dom = document.getElementById('product-prediction-chart');
-		    const myChart = echarts.init(dom, null, {
-		        renderer: 'canvas',
-		        useDirtyRect: false,
-		        height: 460
-		    });
-		
+		    
+		    if (window.myChart != undefined) {
+            window.myChart.dispose();
+         	}
+	         window.myChart = echarts.init(dom, null, {
+	            renderer: 'canvas',
+	            useDirtyRect: false,
+	            height: 460
+			})
+			
 		    const series = [
 		        {
 		            "name": "실제 수요",
@@ -271,10 +352,13 @@ window.addEventListener("load", function() {
 		            }
 		        },
 		        toolbox: {
-		            feature: {
-		                saveAsImage: { show: true }
-		            }
-		        },
+	               feature: {
+	                  dataView: { show: true, readOnly: true },
+	                  magicType: { show: true, type: ['line', 'bar'] },
+	                  restore: { show: true },
+	                  saveAsImage: { show: true }
+	               }
+	            },
 		        legend: {
 		            data: series.map(s => s.name)  // 동적으로 범례 데이터 설정
 		        },
@@ -292,21 +376,14 @@ window.addEventListener("load", function() {
 		                type: 'value',
 		                name: '',
 		                axisLabel: {
-		                    margin: 10
-		                }
+		                    margin: 10,
+		                    interval: 1
+		                },
+		                // y축 범위 고정
+		                min: 0,  // 최소값 설정
+		                max: graphFrame // 최대값 설정
 		            }
 		        ],
-		        /*dataZoom: [
-		            {
-		              type: 'inside',
-		              start: 70,
-		              end: 100
-		            },
-		            {
-		              start: 70,
-		              end: 100
-		            }
-		        ],*/
 		        series: series.map(s => ({
 		            ...s,
 		            tooltip: {
@@ -328,15 +405,11 @@ window.addEventListener("load", function() {
 	// 각각의 정렬 방식을 저장하는 변수
 	let currentSortMethod = ""; // 현재 선택된 정렬 방식
 	let nameSortDirection = "desc"; // 제품명 정렬 방식
-	let demandSortDirection = "asc"; // 수요예측량 정렬 방식
-	let varianceSortDirection = "asc"; // 증감률 정렬 방식
 	
 	// 제품명 정렬 버튼 클릭 시
 	nameSortButton.addEventListener("click", function() {
 		if (currentSortMethod !== "name") {
 	        currentSortMethod = "name";
-	        demandSortDirection = "asc"; // 다른 정렬 방식 초기화
-	        varianceSortDirection = "asc";
 	    }
 	    // 정렬 방식 토글
 	    nameSortDirection = nameSortDirection === "asc" ? "desc" : "asc";
@@ -348,39 +421,6 @@ window.addEventListener("load", function() {
 	    });
 	});
 	
-	// 수요예측량 정렬 버튼 클릭 시
-	demandSortButton.addEventListener("click", function() {
-		if (currentSortMethod !== "demand") {
-	        currentSortMethod = "demand";
-	        nameSortDirection = "desc"; // 다른 정렬 방식 초기화
-	        varianceSortDirection = "asc";
-	    }
-	    // 정렬 방식 토글
-	    demandSortDirection = demandSortDirection === "asc" ? "desc" : "asc";
-	    // 목록 정렬
-	    sortProductListByDemand();
-	    productListSection.scrollTo({
-	        top: 0,
-	        behavior: "smooth"
-	    });
-	});
-	
-	// 증감률 정렬 버튼 클릭 시
-	varianceSortButton.addEventListener("click", function() {
-		if (currentSortMethod !== "variance") {
-	        currentSortMethod = "variance";
-	        nameSortDirection = "desc"; // 다른 정렬 방식 초기화
-	        demandSortDirection = "asc";
-	    }
-	    // 정렬 방식 토글
-	    varianceSortDirection = varianceSortDirection === "asc" ? "desc" : "asc";
-	    // 목록 정렬
-	    sortProductListByVariance();
-	    productListSection.scrollTo({
-	        top: 0,
-	        behavior: "smooth"
-	    });
-	});
 	
 	
 	/** 제품 정렬 함수 */
@@ -393,38 +433,6 @@ window.addEventListener("load", function() {
 	        sortedProducts = sortProductsByNameAsc(products);
 	    } else {
 	        sortedProducts = sortProductsByNameDesc(products);
-	    }
-	    // 정렬된 목록으로 대체
-	    productList.querySelector(".contents").innerHTML = "";
-	    sortedProducts.forEach(product => {
-	        productList.querySelector(".contents").appendChild(product);
-	    });
-	}
-	
-	// 수요예측량으로 정렬하는 함수
-	function sortProductListByDemand() {
-	    const products = productList.querySelectorAll(".product");
-	    let sortedProducts;
-	    if (demandSortDirection === "asc") {
-	        sortedProducts = sortProductsByDemandAsc(products);
-	    } else {
-	        sortedProducts = sortProductsByDemandDesc(products);
-	    }
-	    // 정렬된 목록으로 대체
-	    productList.querySelector(".contents").innerHTML = "";
-	    sortedProducts.forEach(product => {
-	        productList.querySelector(".contents").appendChild(product);
-	    });
-	}
-	
-	// 증감률로 정렬하는 함수
-	function sortProductListByVariance() {
-	    const products = productList.querySelectorAll(".product");
-	    let sortedProducts;
-	    if (varianceSortDirection === "asc") {
-	        sortedProducts = sortProductsByVarianceAsc(products);
-	    } else {
-	        sortedProducts = sortProductsByVarianceDesc(products);
 	    }
 	    // 정렬된 목록으로 대체
 	    productList.querySelector(".contents").innerHTML = "";
@@ -453,47 +461,6 @@ window.addEventListener("load", function() {
 	    });
 	    return sortedProducts;
 	}
-	
-	// 수요예측량으로 오름차순 정렬하는 함수
-	function sortProductsByDemandAsc(products) {
-	    const sortedProducts = Array.from(products).sort((a, b) => {
-	        const demandA = parseInt(a.querySelector(".demand").textContent.replace(/,/g, ''));
-	        const demandB = parseInt(b.querySelector(".demand").textContent.replace(/,/g, ''));
-	        return demandA - demandB;
-	    });
-	    return sortedProducts;
-	}
-	
-	// 수요예측량으로 내림차순 정렬하는 함수
-	function sortProductsByDemandDesc(products) {
-	    const sortedProducts = Array.from(products).sort((a, b) => {
-	        const demandA = parseInt(a.querySelector(".demand").textContent.replace(/,/g, ''));
-	        const demandB = parseInt(b.querySelector(".demand").textContent.replace(/,/g, ''));
-	        return demandB - demandA;
-	    });
-	    return sortedProducts;
-	}
 
-	// 증감률로 오름차순 정렬하는 함수
-	function sortProductsByVarianceAsc(products) {
-	    const sortedProducts = Array.from(products).sort((a, b) => {
-	        // a와 b의 수요예측량을 비교하여 오름차순으로 정렬
-	        const varianceA = parseFloat(a.querySelector(".variance .abs").textContent);
-	        const varianceB = parseFloat(b.querySelector(".variance .abs").textContent);
-	        return varianceA - varianceB;
-	    });
-	    return sortedProducts;
-	}
-	
-	// 증감률로 내림차순 정렬하는 함수
-	function sortProductsByVarianceDesc(products) {
-	    const sortedProducts = Array.from(products).sort((a, b) => {
-	        // a와 b의 수요예측량을 비교하여 내림차순으로 정렬
-	        const varianceA = parseFloat(a.querySelector(".variance .abs").textContent);
-	        const varianceB = parseFloat(b.querySelector(".variance .abs").textContent);
-	        return varianceB - varianceA;
-	    });
-	    return sortedProducts;
-	}
 
 });

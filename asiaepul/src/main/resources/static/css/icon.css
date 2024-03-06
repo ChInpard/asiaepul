@@ -78,6 +78,12 @@
 }
 
 
+.icon-dropdown::before {
+    -webkit-mask-image: url(/image/icon/drop-down.svg);
+    mask-image: url(/image/icon/drop-down.svg);
+    background-image: url(/image/icon/drop-down.svg);
+}
+
 .icon-category::before {
     -webkit-mask-image: url(/image/icon/category.svg);
     mask-image: url(/image/icon/category.svg);

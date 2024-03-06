@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	        xAxis: [
 	            {
 	                type: 'category',
-	                name: '상품명',
+	                name: '',
 	                data: chartData.categories,
 	                axisPointer: {
 	                    type: 'shadow'
@@ -48,6 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	            {
 	                type: 'value',
 	                name: '판매량',
+	            	nameGap: 25,
 	                axisLabel: {
                     	margin: 10
                 	}

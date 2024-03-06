@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	            nameLocation: 'middle',
 	            nameGap: 40,
 	            axisLabel: {
-                    interval: 1, // 모든 라벨을 표시
+                    interval: 1,
                 }
 	        },
 	        yAxis: {

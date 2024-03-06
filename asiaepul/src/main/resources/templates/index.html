@@ -30,10 +30,10 @@
                 </a>
             </div>
             <ul class="d:flex gap:8 font-weight:600">
-                <li><a class="font-size:1" href="/prediction">Forecasting</a></li>
-                <li><a class="font-size:1" href="/analysis">Analysis</a></li>
+                <li><a class="font-size:2 color:main-4" href="/">Daily Report</a></li>
+                <li><a class="font-size:2" href="/prediction">Forecasting</a></li>
             </ul>
-            <div class="font-size:0" style="margin-left:1000px;"><span th:text="${td.today}">날짜</span> <span>보고</span></div>
+            <div class="font-size:2 font-weight:bold" style="margin-left:1000px;"><span class="" th:text="${td.today}">날짜</span></div>
         </nav>
     </header>
 
@@ -44,15 +44,15 @@
                 <div class="result">
                     <span class="font-size:6 color:main-1" th:text="${var.variance}">2.76 %</span>
                 </div>
-                <div class="font-size:0 color:base-4 text-align:center">
-                    전일 대비 판매 증감률
+                <div class="font-size:1 color:base-4 text-align:center">
+                    전일대비 판매 증감률
                 </div>
             </div>
             <div class="card">
                 <div class="result">
                     <span class="font-size:6 color:base-6 text-align:center" th:text="${bc.bestCategory}">특정 카테고리</span>
                 </div>
-                <div class="font-size:0 color:base-4 text-align:center">
+                <div class="font-size:1 color:base-4 text-align:center">
                     최다 판매 상품군
                 </div>
             </div>
@@ -60,15 +60,15 @@
                 <div class="result">
                     <span class="font-size:6 color:base-6 text-align:center" th:text="${wc.worstCategory}">특정 카테고리</span>
                 </div>
-                <div class="font-size:0 color:base-4 text-align:center">
-                    최저 판매 상품군
+                <div class="font-size:1 color:base-4 text-align:center">
+                    최소 판매 상품군
                 </div>
             </div>
             <div class="card">
                 <div class="result">
                     <span class="font-size:6 color:base-6 text-align:center" th:text="${bp.bestProduct}">특정 식품</span>
                 </div>
-                <div class="font-size:0 color:base-4 text-align:center">
+                <div class="font-size:1 color:base-4 text-align:center">
                     최다 판매 상품
                 </div>
             </div>
@@ -76,24 +76,24 @@
                 <div class="result">
                     <span class="font-size:6 color:base-6 text-align:center" th:text="${wp.worstProduct}">특정 식품</span>
                 </div>
-                <div class="font-size:0 color:base-4 text-align:center">
-                    최저 판매 상품
+                <div class="font-size:1 color:base-4 text-align:center">
+                    최소 판매 상품
                 </div>
             </div>
             <div class="card">
                 <div class="result">
                     <span class="font-size:6 color:base-6" th:text="${p.peakTime}">17:00 ~ 18:00</span>
                 </div>
-                <div class="font-size:0 color:base-4 text-align:center">
-                    최다 이용 시간대
+                <div class="font-size:1 color:base-4 text-align:center">
+                    최고 이용 시간
                 </div>
             </div>
             <div class="card">
                 <div class="result">
                     <span class="font-size:6 color:base-6" th:text="${op.offPeakTime}">17:00 ~ 18:00</span>
                 </div>
-                <div class="font-size:0 color:base-4 text-align:center">
-                    최저 이용 시간대
+                <div class="font-size:1 color:base-4 text-align:center">
+                    최저 이용 시간
                 </div>
             </div>
         </section>
@@ -101,12 +101,19 @@
         <section class="graph-table mb:4">
             <h1 class="d:none">차트 및 테이블 섹션</h1>
             <section class="mart-performance p:3 bg-color:base-0 border-radius:2 box-shadow:0">
-                <h1 class="font-size:2 color:base-6 font-weight:600">지점별 실적 순위</h1>
+                <h1 class="font-size:2 color:base-6 font-weight:600">지점별 판매 순위</h1>
                 <div id="bestmart-chart" class="position:relative w:1 h:1"></div>
             </section>
 
             <section class="sales-product-rank p:3 bg-color:base-0 border-radius:2 box-shadow:0">
-                <h1 class="font-size:2 color:base-6 font-weight:600">상품별 판매량 순위</h1>
+                <h1 class="d:inline-block font-size:2 color:base-6 font-weight:600">상품 판매 순위</h1>
+		        <div class="dropdown d:inline-block" style="margin-left: 61%;">
+				  	<button class="d:inline-flex align-items:center w:80 gap:2 border:none border-radius:2 pv:1 ph:2 cursor:pointer">선택<span class="icon icon-dropdown icon-size:2"></span></button>
+				  	<div class="dropdown-options bg-color:base-0 d:none position:absolute border-radius:2 box-shadow:0">
+					    <div class="option d:flex gap:1 font-size:0 w:80 pv:1 ph:3 color:base-7 cursor:pointer"><span class="color:main-1">▲</span>상위</div>
+					    <div class="option d:flex gap:1 font-size:0 w:80 pv:1 ph:3 color:base-7 cursor:pointer"><span class="color:main-2">▼</span>하위</div>
+				  	</div>
+				</div>
                 <table class="overflow:hidden">
                     <thead>
                         <!--<tr class="bg-color:main-1">
@@ -128,7 +135,14 @@
             </section>
 
             <section class="rapid-changing-sales p:3 bg-color:base-0 border-radius:2 box-shadow:0 overflow:hidden">
-                <h1 class="font-size:2 color:base-6 font-weight:600">판매량 급변 상품 순위</h1>
+                <h1 class="d:inline-block font-size:2 color:base-6 font-weight:600">상품 판매 급변 순위</h1>
+                <div class="dropdown d:inline-block" style="margin-left: 53%;">
+				  	<button class="d:inline-flex align-items:center w:80 gap:2 border:none border-radius:2 pv:1 ph:2 cursor:pointer">선택<span class="icon icon-dropdown icon-size:2"></span></button>
+				  	<div class="dropdown-options bg-color:base-0 d:none position:absolute border-radius:2 box-shadow:0">
+					    <div class="option d:flex gap:1 font-size:0 w:80 pv:1 ph:3 color:base-7 cursor:pointer"><span class="color:main-1">▲</span>상위</div>
+					    <div class="option d:flex gap:1 font-size:0 w:80 pv:1 ph:3 color:base-7 cursor:pointer"><span class="color:main-2">▼</span>하위</div>
+				  	</div>
+				</div>
                 <table class="overflow:hidden">
                     <thead>
                         <!--<tr class="bg-color:accent-1">
@@ -147,16 +161,15 @@
                         </tr>-->
                     </tbody>
                 </table>
-                </table>
             </section>
 
             <section class="sales-volume-trend p:3 bg-color:base-0 border-radius:2 box-shadow:0">
-                <h1 class="font-size:2 color:base-6 font-weight:600">시간대별 이용 추이</h1>
+                <h1 class="font-size:2 color:base-6 font-weight:600">시간대별 판매 추이</h1>
                 <div id="sales-trend-chart" class="position:relative w:1 h:1"></div>
             </section>
 
             <section class="today-product-all p:3 bg-color:base-0 border-radius:2 box-shadow:0">
-                <h1 class="font-size:2 color:base-6 font-weight:600">금일 모든 상품 판매량</h1>
+                <h1 class="font-size:2 color:base-6 font-weight:600">전체 상품 판매</h1>
                 <div id="product-all-chart" class="position:relative w:1 h:1"></div>
             </section>
         </section>
