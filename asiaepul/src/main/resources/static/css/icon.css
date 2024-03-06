@@ -1,0 +1,103 @@
+.icon{
+    /* border: 1px solid blue; */
+    display: inline-block;
+    width:var(--icon-size-1);
+    height:var(--icon-size-1);
+    background-size: var(--icon-size-1);
+
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 0px;
+    border: none;
+    background-color: transparent;
+
+}
+
+.icon::before{
+    /* border: 1px solid red; */
+    content: '';
+    display: inline-block;
+    width:inherit;
+    height:inherit;
+    background-size: inherit;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: inherit;
+    mask-size: inherit;
+    /* background-color: var(--color-main-1); */
+}
+
+
+.deco{
+    display: inline-flex;
+
+}
+
+.deco::before{
+    /* border: 1px solid red; */
+    content: '';
+    display: inline-block;
+    width:var(--icon-size-1);
+    height:var(--icon-size-1);
+    /* background-size: inherit; */
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: inherit;
+    mask-size: inherit;
+    background-color: var(--color-base-1);
+    margin-right: 6px;
+}
+
+/* ---------- icon ---------------------------------- */
+.icon-hover:hover::before{
+    background-color: var(--color-accent-3);
+}
+
+.icon-size\:1{
+    width:var(--icon-size-1);
+    height:var(--icon-size-1);
+    background-size: var(--icon-size-1);
+}
+
+.icon-size\:2{
+    width:var(--icon-size-2);
+    height:var(--icon-size-2);
+    background-size: var(--icon-size-2);
+}
+
+.icon-size\:3{
+    width:var(--icon-size-3);
+    height:var(--icon-size-3);
+    background-size: var(--icon-size-3);
+}
+
+.deco-icon-size-1::before{
+    width:var(--icon-size-1);
+    height:var(--icon-size-1);
+    background-size: var(--icon-size-1);
+}
+
+
+.icon-dropdown::before {
+    -webkit-mask-image: url(/image/icon/drop-down.svg);
+    mask-image: url(/image/icon/drop-down.svg);
+    background-image: url(/image/icon/drop-down.svg);
+}
+
+.icon-category::before {
+    -webkit-mask-image: url(/image/icon/category.svg);
+    mask-image: url(/image/icon/category.svg);
+    background-image: url(/image/icon//category.svg);
+}
+
+.icon-search::before {
+    -webkit-mask-image: url(/image/icon/search.svg);
+    mask-image: url(/image/icon/search.svg);
+    background-image: url(/image/icon//search.svg);
+}
+
+.icon-filter::before {
+    -webkit-mask-image: url(/image/icon/filter.svg);
+    mask-image: url(/image/icon/filter.svg);
+    background-image: url(/image/icon//filter.svg);
+}

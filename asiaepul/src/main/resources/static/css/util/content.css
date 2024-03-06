@@ -1,0 +1,212 @@
+/*
+순서
+
+font
+text
+cursor
+visible
+float
+vertical-align
+
+*/
+
+/* === font ================================*/
+/* 웹폰트 
+https://github.com/orioncactus/pretendard */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/variable/pretendardvariable-dynamic-subset.css");
+
+/*--- font family ------------------------------------------------------------------*/
+.font-family\:noto{ font-family: 'Noto Sans KR', sans-serif !important; }
+.font-family\:nanum{ font-family: 'NanumSquare' !important; }
+.font-family\:monospace {font-family: "SFMono-Regular",Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace !important; }
+
+/* ------- font-size ------------------------- */
+
+.font-size\:-2{ font-size: 11px !important; }
+.font-size\:-1{ font-size: 12px !important; }
+.font-size\:0 { font-size: 14px !important; }
+.font-size\:1 { font-size: 16px !important; }
+.font-size\:2 { font-size: 18px !important; }
+.font-size\:3 { font-size: 20px !important; }
+.font-size\:4 { font-size: 22px !important; }
+.font-size\:5 { font-size: 24px !important; }
+.font-size\:6 { font-size: 26px !important; }
+.font-size\:7 { font-size: 28px !important; }
+.font-size\:8 { font-size: 30px !important; }
+
+.font-size\:1r{ font-size:.5em!important; }
+.font-size\:2r{ font-size:.75em!important; }
+.font-size\:3r{ font-size:1em!important; }
+.font-size\:4r{ font-size:1.5em!important; }
+.font-size\:5r{ font-size:2em!important; }	
+.font-size\:6r{ font-size:2.5em!important; }	
+.font-size\:7r{ font-size:3em!important; }	
+.font-size\:8r{ font-size:3.75em!important; }
+
+/* ---- font color ------------------------------------------------- */
+.color\:base-0,
+.color\:white{ color:var(--color-base-0) !important; }
+.color\:base-1{ color:var(--color-base-1) !important; }
+.color\:base-2{ color:var(--color-base-2) !important; }
+.color\:base-3{ color:var(--color-base-3) !important; }
+.color\:base-4{ color:var(--color-base-4) !important; }
+.color\:base-5{ color:var(--color-base-5) !important; }
+.color\:base-6{ color:var(--color-base-6) !important; }
+.color\:base-7{ color:var(--color-base-7) !important; }
+.color\:base-8{ color:var(--color-base-8) !important; }
+.color\:base-9{ color:var(--color-base-9) !important; }
+.color\:base-10{ color:var(--color-base-10) !important; }
+.color\:base-11{ color:var(--color-base-11) !important; }
+.color\:base-12{ color:var(--color-base-12) !important; }
+.color\:base-13{ color:var(--color-base-13) !important; }
+.color\:base-14{ color:var(--color-base-14) !important; }
+.color\:black{ color:var(--color-black) !important; }
+
+.color\:main-1{ color:var(--color-main-1) !important; }
+.color\:main-2{ color:var(--color-main-2) !important; }
+.color\:main-3{ color:var(--color-main-3) !important; }
+.color\:main-4{ color:var(--color-main-4) !important; }
+
+.color\:primary-1{ color:var(--color-primary-1) !important; }
+.color\:primary-2{ color:var(--color-primary-2) !important; }
+.color\:primary-3{ color:var(--color-primary-3) !important; }
+
+.color\:secondary-1{ color:var(--color-secondary-1) !important; }
+.color\:secondary-2{ color:var(--color-secondary-2) !important; }
+.color\:secondary-3{ color:var(--color-secondary-3) !important; }
+
+.color\:accent-1{ color:var(--color-accent-1) !important; }
+.color\:accent-2{ color:var(--color-accent-2) !important; }
+.color\:accent-3{ color:var(--color-accent-3) !important; }
+
+/* --- .font-weight ---------------------------- */
+
+.font-weight\:-2{ font-weight: 200 !important; }
+.font-weight\:-1{ font-weight: 300 !important; }
+.font-weight\:0 { font-weight: 400 !important; }
+.font-weight\:1 { font-weight: 500 !important; }
+.font-weight\:2 { font-weight: 600 !important; }
+.font-weight\:3 { font-weight: 700 !important; }
+.font-weight\:4 { font-weight: 900 !important; }
+.font-weight\:5 { font-weight: 900 !important; }
+
+.font-weight\:lighter { font-weight: lighter !important; } 
+.font-weight\:light   { font-weight: 300 !important; } 
+.font-weight\:normal  { font-weight: normal !important; }    /*400*/
+.font-weight\:500  { font-weight: 500 !important; }    /*400*/
+.font-weight\:600  { font-weight: 600 !important; }    /*400*/
+.font-weight\:bold    { font-weight: bold !important; }      /*700*/
+.font-weight\:bolder  { font-weight: bolder !important; }
+
+
+/* --- .font-style ------------------------------*/
+
+.font-style\:unset { font-style: unset!important;}
+.font-style\:normal { font-style: normal!important;}
+.font-style\:italic { font-style: italic!important;}
+
+
+/* === text ============================= */
+
+.text-indent\:1{text-indent: .5em;}
+.text-indent\:1{text-indent: 1em;}
+
+/*--- text align ------------------------------------------------------------------*/
+
+.text-align\:left { text-align: left!important; }
+.text-align\:center { text-align: center!important; }
+.text-align\:right { text-align: right!important;}
+.text-align\:justify  { text-align: justify !important; }
+
+
+/*--- text-decoration------------------------ */
+
+.text-decoration\:none { text-decoration: none!important;}
+
+/*--- text-transform --------------------------------------------------------------*/
+
+.text-transform\:lowercase  { text-transform: lowercase !important; }
+.text-transform\:uppercase  { text-transform: uppercase !important; }
+.text-transform\:capitalize { text-transform: capitalize !important; }
+
+
+/*--- .white-space ------------------------------------------------------------------*/
+
+.white-space\:normal   { white-space: normal !important; }
+.white-space\:nowrap   { white-space: nowrap !important; }
+
+
+/* === cursor =============================== */
+.cursor\:alias { cursor: alias !important;}
+.cursor\:all-scroll { cursor: all-scroll !important;}
+.cursor\:auto { cursor: auto !important;}
+.cursor\:cell { cursor: cell !important;}
+.cursor\:col-resize { cursor: col-resize !important;}
+.cursor\:ontext-menu { cursor: context-menu !important;}
+.cursor\:copy { cursor: copy !important;}
+.cursor\:crosshair { cursor: crosshair !important;}
+.cursor\:default { cursor: default !important;}
+.cursor\:e-resize { cursor: e-resize !important;}
+.cursor\:ew-resize { cursor: ew-resize !important;}
+.cursor\:grab { cursor: grab !important;}
+.cursor\:grabbing { cursor: grabbing !important;}
+.cursor\:help { cursor: help !important;}
+.cursor\:move { cursor: move !important;}
+.cursor\:n-resize { cursor: n-resize !important;}
+.cursor\:ne-resize { cursor: ne-resize !important;}
+.cursor\:nesw-resize { cursor: nesw-resize !important;}
+.cursor\:pointer { cursor: pointer !important;}
+.cursor\:progress { cursor: progress !important;}
+.cursor\:s-resize { cursor: s-resize !important;}
+.cursor\:se-resize { cursor: se-resize !important;}
+.cursor\:sw-resize { cursor: sw-resize !important;}
+.cursor\:text { cursor: text !important;}
+.cursor\:vertical-text { cursor: vertical-text !important;}
+.cursor\:w-resize { cursor: w-resize !important;}
+.cursor\:wait { cursor: wait !important;}
+.cursor\:zoom-in { cursor: zoom-in !important;}
+.cursor\:zoom-out { cursor: zoom-out !important;}
+.cursor\:initial { cursor: initial !important;}
+.cursor\:inherit { cursor: inherit !important;}
+
+
+/*-=== visible =================================--------------------------*/
+.visibility\:visible {visibility: visible !important;}
+.visibility\:hidden {visibility: hidden !important;}
+.visibility\:collapse {visibility: collapse !important;}
+.visibility\:unset {visibility: unset !important;}
+.visibility\:inherit {visibility: inherit !important;}
+.visibility\:initial {visibility: initial !important;}
+
+/* ==== float ================================ */
+.float\:left{float: left!important;}
+.float\:right{float: right!important;}
+.float\:none{float: none !important;}
+.float\:inline-end{float: inline-end !important;}
+.float\:inline-start{float: inline-start !important;}
+.float\:unset{float: unset !important;}
+.float\:inherit{float: inherit !important;}
+.float\:initial{float: initial !important;}
+
+/* === vertical-align =========================== */
+.vertical-align\:auto{ vertical-align: auto !important; }
+.vertical-align\:baseline{ vertical-align: baseline !important; }
+.vertical-align\:bottom{ vertical-align: bottom !important; }
+.vertical-align\:middle{ vertical-align: middle !important; }
+.vertical-align\:sub{ vertical-align: sub !important; }
+.vertical-align\:super{ vertical-align: super !important; }
+.vertical-align\:text-bottom{ vertical-align: text-bottom !important; }
+.vertical-align\:text-top{ vertical-align: text-top !important; }
+.vertical-align\:top{ vertical-align: top !important; }
+.vertical-align\:auto{ vertical-align: -webkit-baseline-middle !important; }
+.vertical-align\:inherit{ vertical-align: inherit !important; }
+.vertical-align\:initial{ vertical-align: initial !important; }
+
+
+@media (min-width: 700px) {
+
+}
+
+@media (min-width: 1024px) {
+
+}

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/css/reset.css" rel="stylesheet" type="text/css">
+    <link href="/css/style.css" rel="stylesheet" type="text/css">
+    <link href="/css/util/content.css" rel="stylesheet" type="text/css">
+    <link href="/css/util/box.css" rel="stylesheet" type="text/css">
+    <link href="/css/util/form.css" rel="stylesheet" type="text/css">
+    <link href="/css/util/layout.css" rel="stylesheet" type="text/css">
+    <link href="/css/root.css" rel="stylesheet" type="text/css">
+    <link href="/css/icon.css" rel="stylesheet" type="text/css">
+    <link href="/css/components/header.css" rel="stylesheet" type="text/css">
+    <link href="/css/components/prediction.css" rel="stylesheet" type="text/css">
+    <script src="https://fastly.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js" defer></script>
+    <script src="/js/search-product.js" defer></script>
+    <title>수요 예측</title>
+</head>
+<body>
+    <header class="header">
+        <nav class="navigation d:flex align-items:center pv:3 bg-color:base-0 box-shadow:b1">
+            <div class="img-block ml:3">
+                <a href="/">
+                    <img class="pulmuone" src="/image/pulmuone.png" alt="x">
+                </a>
+                </div>
+            <ul class="d:flex gap:8 font-weight:600">
+                <li><a class="font-size:2" href="/">Daily Report</a></li>
+                <li><a class="font-size:2 color:main-4" href="/prediction">Forecasting</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="prediction-section">
+            <h1 class="d:none">분석 섹션</h1>
+
+            <section class="prediction-list d:flex flex:col align-items:center p:3 bg-color:base-0 border-tr-radius:2 box-shadow:0">
+                <h1 class="font-size:4 color:base-6 font-weight:600 pl:2 align-self:start">수요 예측 리스트</h1>
+                <section class="search-bar">
+                    <h1 class="d:none">이름 검색 폼</h1>
+                    <div class="popup-container">
+					    <div class="popup">
+					        <!--<div class="position:relative">
+                                <input class="search-text" type="text" placeholder="카테고리를 검색해주세요.">
+                                <button class="search-input icon icon-search icon-size:2 back:transparent position:absolute" value="검색">
+                            </div>-->
+                            <div class="popup-contents position:relative">
+								<!--<div class="content">asd</div>-->
+								<div class="loading-overlay">
+							        <div class="loading-spinner"></div>
+							    </div>
+							</div>
+						    <button type="button" class="popup-close">닫기</button>
+					    </div>
+					</div>
+                    <form class="product-form" action="">
+                        <fieldset class="d:flex justify-content:center">
+                            <button type="button" class="icon icon-category mr:3 justify-self:center align-self:center cursor:pointer">카테고리</button>
+                            <div class="input-box position:relative">
+                                <input class="search-text" type="text" placeholder="상품명을 검색해주세요.">
+                                <button type="submit" class="search-input icon icon-search icon-size:2 back:transparent position:absolute" value="검색">
+                            </div>
+                            <button type="reset" class="ml:2 bg-color:base-0 border:none color:accent-2 cursor:pointer">Clear</button>
+                        </fieldset>
+                    </form>
+                </section>
+
+                <section class="product-list">
+					<h1 class="d:none">제품 목록</h1>
+                    <div class="title d:flex align-items:center">
+                        <div class="product-name color:base-4">제품<button class="icon icon-filter icon-size:2 cursor:pointer"></button></div>
+                    </div>
+                    <div class="contents overflow:auto h:580px position:relative">
+		                <!--<div class="product d:flex align-items:center">
+		                    <div class="product-name color:base-5">${m.productName}</div>
+			                <div class="demand color:base-5 text-align:center">${m.demand}</div>
+		                    <div class="variance d:flex flex:col justify-content:center align-items:center">
+		                        <span class="h:25px font-size:3 color:main-1">${m.status}</span>
+		                        <span class="h:25px font-size:0 color:base-5">${m.variance}</span>
+		                    </div>
+		        		</div>-->
+		        		<div class="loading-overlay">
+					        <div class="loading-spinner"></div>
+					    </div>
+	        		</div>
+	        		
+                </section>
+            </section>
+
+            <section class="AI-apply pv:3 ph:4 bg-color:base-0 border-radius:2 box-shadow:0">
+                <h1 class="font-size:4 color:base-7 font-weight:600">인공지능 적용 현황</h1>
+                <dl class="">
+                    <dt class="font-size:1 color:base-5 font-weight:bold">적용된 인공지능 모델</dt>
+                    <dd class="model-name font-size:3 color:base-8 font-weight:bold">분석 모델</dd>
+                    <dt class="font-size:1 color:base-5 font-weight:bold">최근 10일 실제 판매량</dt>
+                    <dd class="real font-size:3 color:base-8 font-weight:bold">수치</dd>
+                    <dt class="font-size:1 color:base-5 font-weight:bold">최근 10일 수요 예측량</dt>
+                    <dd class="pred font-size:3 color:base-8 font-weight:bold">수치</dd>
+                </dl>
+            </section>
+            
+            <section class="AI-figure pv:3 ph:4 bg-color:base-0 border-radius:2 box-shadow:0">
+                <h1 class="font-size:4 color:base-7 font-weight:600">모델 성능 평가 지표</h1>
+                <dl class="">
+                    <dt class="d:flex flex:col font-size:1 color:base-5 font-weight:bold"><span>MAE</span><span class="font-size:-2">(Mean Absolute Error)</span></dt>
+                    <dd class="mae font-size:3 color:base-8 font-weight:bold">수치</span></dd>
+                    <dt class="d:flex flex:col font-size:1 color:base-5 font-weight:bold"><span>RMSE</span><span class="font-size:-2" >(Root Mean Square Error)</span></dt>
+                    <dd class="rmsd font-size:3 color:base-8 font-weight:bold">수치</dd>
+                    <dt class="d:flex flex:col font-size:1 color:base-5 font-weight:bold"><span>MAPE</span><span class="font-size:-2">(Mean Absolute Percentage Error)</span></dt>
+                    <dd class="mape font-size:3 color:base-8 font-weight:bold">수치</dd>
+                </dl>
+            </section>
+
+            <section class="analysis-select pv:3 ph:4 d:flex flex:col p:3 bg-color:base-0 border-radius:2 box-shadow:0">
+                <h1 class="font-size:4 color:base-7 font-weight:600">분석 모델 선택</h1>
+                <div class="d:flex flex:col gap:3 text-align:center mt:5 mh:6">
+                    <button class="analysis-model font-size:1 color:base-7 font-weight:bold p:3 bg-color:main-4 border:none border-radius:3 cursor:pointer">LTSF-NLinear</button>
+                    <button class="analysis-model font-size:1 color:base-7 font-weight:bold p:3 bg-color:main-1 border:none border-radius:3 cursor:pointer">LSTM</button>
+                </div>
+            </section>
+
+            <section class="product-prediction pv:3 ph:4 bg-color:base-0 border-radius:2 box-shadow:0 position:relative">
+                <h1 class="product-name font-size:7 color:base-7 font-weight:600">제품명</h1>
+            	<div id="product-prediction-chart" class="position:relative w:1 h:1"></div>
+            	<div class="loading-overlay">
+			        <div class="loading-spinner"></div>
+			    </div>
+            </section>
+
+        </section>
+    </main>
+</body>
+</html>

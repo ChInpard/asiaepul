@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/css/reset.css" rel="stylesheet" type="text/css">
+    <link href="/css/style.css" rel="stylesheet" type="text/css">
+    <link href="/css/util/content.css" rel="stylesheet" type="text/css">
+    <link href="/css/util/box.css" rel="stylesheet" type="text/css">
+    <link href="/css/util/form.css" rel="stylesheet" type="text/css">
+    <link href="/css/util/layout.css" rel="stylesheet" type="text/css">
+    <link href="/css/root.css" rel="stylesheet" type="text/css">
+    <link href="/css/icon.css" rel="stylesheet" type="text/css">
+    <link href="/css/components/header.css" rel="stylesheet" type="text/css">
+    <link href="/css/index.css" rel="stylesheet" type="text/css">
+    <script src="https://fastly.jsdelivr.net/npm/echarts@5/dist/echarts.min.js" defer></script>
+    <script src="/js/bestmart-chart.js" defer></script>
+    <script src="/js/ranking-table.js" defer></script>
+    <script src="/js/sales-trend-chart.js" defer></script>
+    <script src="/js/today-product-all.js" defer></script>
+    <title>Today Reports</title>
+</head>
+
+<body>
+    <header class="header">
+        <nav class="navigation d:flex align-items:center pv:3 bg-color:base-0 box-shadow:b1">
+            <div class="img-block ml:3">
+                <a href="/">
+                    <img class="pulmuone" src="/image/pulmuone.png" alt="x">
+                </a>
+            </div>
+            <ul class="d:flex gap:8 font-weight:600">
+                <li><a class="font-size:2 color:main-4" href="/">Daily Report</a></li>
+                <li><a class="font-size:2" href="/prediction">Forecasting</a></li>
+            </ul>
+            <div class="font-size:2 font-weight:bold" style="margin-left:1000px;"><span class="" th:text="${td.today}">날짜</span></div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="card-section">
+            <h1 class="d:none">카드 섹션</h1>
+            <div class="card">
+                <div class="result">
+                    <span class="font-size:6 color:main-1" th:text="${var.variance}">2.76 %</span>
+                </div>
+                <div class="font-size:1 color:base-4 text-align:center">
+                    전일대비 판매 증감률
+                </div>
+            </div>
+            <div class="card">
+                <div class="result">
+                    <span class="font-size:6 color:base-6 text-align:center" th:text="${bc.bestCategory}">특정 카테고리</span>
+                </div>
+                <div class="font-size:1 color:base-4 text-align:center">
+                    최다 판매 상품군
+                </div>
+            </div>
+            <div class="card">
+                <div class="result">
+                    <span class="font-size:6 color:base-6 text-align:center" th:text="${wc.worstCategory}">특정 카테고리</span>
+                </div>
+                <div class="font-size:1 color:base-4 text-align:center">
+                    최소 판매 상품군
+                </div>
+            </div>
+            <div class="card">
+                <div class="result">
+                    <span class="font-size:6 color:base-6 text-align:center" th:text="${bp.bestProduct}">특정 식품</span>
+                </div>
+                <div class="font-size:1 color:base-4 text-align:center">
+                    최다 판매 상품
+                </div>
+            </div>
+            <div class="card">
+                <div class="result">
+                    <span class="font-size:6 color:base-6 text-align:center" th:text="${wp.worstProduct}">특정 식품</span>
+                </div>
+                <div class="font-size:1 color:base-4 text-align:center">
+                    최소 판매 상품
+                </div>
+            </div>
+            <div class="card">
+                <div class="result">
+                    <span class="font-size:6 color:base-6" th:text="${p.peakTime}">17:00 ~ 18:00</span>
+                </div>
+                <div class="font-size:1 color:base-4 text-align:center">
+                    최고 이용 시간
+                </div>
+            </div>
+            <div class="card">
+                <div class="result">
+                    <span class="font-size:6 color:base-6" th:text="${op.offPeakTime}">17:00 ~ 18:00</span>
+                </div>
+                <div class="font-size:1 color:base-4 text-align:center">
+                    최저 이용 시간
+                </div>
+            </div>
+        </section>
+
+        <section class="graph-table mb:4">
+            <h1 class="d:none">차트 및 테이블 섹션</h1>
+            <section class="mart-performance p:3 bg-color:base-0 border-radius:2 box-shadow:0">
+                <h1 class="font-size:2 color:base-6 font-weight:600">지점별 판매 순위</h1>
+                <div id="bestmart-chart" class="position:relative w:1 h:1"></div>
+            </section>
+
+            <section class="sales-product-rank p:3 bg-color:base-0 border-radius:2 box-shadow:0">
+                <h1 class="d:inline-block font-size:2 color:base-6 font-weight:600">상품 판매 순위</h1>
+		        <div class="dropdown d:inline-block" style="margin-left: 61%;">
+				  	<button class="d:inline-flex align-items:center w:80 gap:2 border:none border-radius:2 pv:1 ph:2 cursor:pointer">선택<span class="icon icon-dropdown icon-size:2"></span></button>
+				  	<div class="dropdown-options bg-color:base-0 d:none position:absolute border-radius:2 box-shadow:0">
+					    <div class="option d:flex gap:1 font-size:0 w:80 pv:1 ph:3 color:base-7 cursor:pointer"><span class="color:main-1">▲</span>상위</div>
+					    <div class="option d:flex gap:1 font-size:0 w:80 pv:1 ph:3 color:base-7 cursor:pointer"><span class="color:main-2">▼</span>하위</div>
+				  	</div>
+				</div>
+                <table class="overflow:hidden">
+                    <thead>
+                        <!--<tr class="bg-color:main-1">
+                            <th class="w:8% text-align:center">순위</th>
+                            <th class="w:35% text-align:center">식품군</th>
+                            <th class="w:35% text-align:center">식품</th>
+                            <th class="text-align:center">판매량</th>
+                        </tr>-->
+                    </thead>
+                    <tbody>
+                        <!--<tr>
+                            <td class="text-align:center">1</td>
+                            <td class="text-align:center">Nantucket Pine Orangebanana</td>
+                            <td class="text-align:center">Nantucket Pine Orangebanana</td>
+                            <td class="text-align:center">+5%</td>
+                        </tr>-->
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="rapid-changing-sales p:3 bg-color:base-0 border-radius:2 box-shadow:0 overflow:hidden">
+                <h1 class="d:inline-block font-size:2 color:base-6 font-weight:600">상품 판매 급변 순위</h1>
+                <div class="dropdown d:inline-block" style="margin-left: 53%;">
+				  	<button class="d:inline-flex align-items:center w:80 gap:2 border:none border-radius:2 pv:1 ph:2 cursor:pointer">선택<span class="icon icon-dropdown icon-size:2"></span></button>
+				  	<div class="dropdown-options bg-color:base-0 d:none position:absolute border-radius:2 box-shadow:0">
+					    <div class="option d:flex gap:1 font-size:0 w:80 pv:1 ph:3 color:base-7 cursor:pointer"><span class="color:main-1">▲</span>상위</div>
+					    <div class="option d:flex gap:1 font-size:0 w:80 pv:1 ph:3 color:base-7 cursor:pointer"><span class="color:main-2">▼</span>하위</div>
+				  	</div>
+				</div>
+                <table class="overflow:hidden">
+                    <thead>
+                        <!--<tr class="bg-color:accent-1">
+                            <th class="w:8% text-align:center">순위</th>
+                            <th class="w:35% text-align:center">식품군</th>
+                            <th class="w:35% text-align:center">식품</th>
+                            <th class="text-align:center">증감률</th>
+                        </tr>-->
+                    </thead>
+                    <tbody>
+                        <!--<tr>
+                            <td class="text-align:center">1</td>
+                            <td class="text-align:center">Broom And Broom Rack White</td>
+                            <td class="text-align:center">Nantucket Pine Orangebanana</td>
+                            <td class="text-align:center">+5%</td>
+                        </tr>-->
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="sales-volume-trend p:3 bg-color:base-0 border-radius:2 box-shadow:0">
+                <h1 class="font-size:2 color:base-6 font-weight:600">시간대별 판매 추이</h1>
+                <div id="sales-trend-chart" class="position:relative w:1 h:1"></div>
+            </section>
+
+            <section class="today-product-all p:3 bg-color:base-0 border-radius:2 box-shadow:0">
+                <h1 class="font-size:2 color:base-6 font-weight:600">전체 상품 판매</h1>
+                <div id="product-all-chart" class="position:relative w:1 h:1"></div>
+            </section>
+        </section>
+    </main>
+</body>
+
+</html>
